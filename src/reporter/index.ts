@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import kleur from 'kleur';
 import type { AnalysisResult } from '../types.js';
 
 export const reporter = {
@@ -17,7 +17,7 @@ export const reporter = {
   },
   
   reportText(results: AnalysisResult): void {
-    console.log(chalk.bold(`\nFound ${results.issues.length} issues in ${results.filesAnalyzed} files:\n`));
+    console.log(kleur.bold(`\nFound ${results.issues.length} issues in ${results.filesAnalyzed} files:\n`));
     
     // Group issues by file
     const byFile = results.issues.reduce((acc, issue) => {
@@ -27,31 +27,31 @@ export const reporter = {
     }, {} as Record<string, typeof results.issues>);
     
     for (const [file, issues] of Object.entries(byFile)) {
-      console.log(chalk.underline(file));
+      console.log(kleur.underline(file));
       
       for (const issue of issues) {
         const icon = issue.severity === 'error' ? '❌' : 
                     issue.severity === 'warning' ? '⚠️' : 'ℹ️';
-        const color = issue.severity === 'error' ? chalk.red :
-                     issue.severity === 'warning' ? chalk.yellow : chalk.blue;
+        const color = issue.severity === 'error' ? kleur.red :
+                     issue.severity === 'warning' ? kleur.yellow : kleur.blue;
         
         console.log(
           `  ${icon} ${color(`[${issue.rule}]`)} ${issue.message}`,
-          chalk.gray(`(${issue.line}:${issue.column})`)
+          kleur.gray(`(${issue.line}:${issue.column})`)
         );
         
         if (issue.suggestion) {
-          console.log(chalk.gray(`     💡 ${issue.suggestion}`));
+          console.log(kleur.gray(`     💡 ${issue.suggestion}`));
         }
       }
       console.log('');
     }
     
     // Summary
-    console.log(chalk.bold('Summary:'));
-    console.log(`  Errors: ${chalk.red(results.stats.errors)}`);
-    console.log(`  Warnings: ${chalk.yellow(results.stats.warnings)}`);
-    console.log(`  Info: ${chalk.blue(results.stats.info)}`);
+    console.log(kleur.bold('Summary:'));
+    console.log(`  Errors: ${kleur.red(results.stats.errors)}`);
+    console.log(`  Warnings: ${kleur.yellow(results.stats.warnings)}`);
+    console.log(`  Info: ${kleur.blue(results.stats.info)}`);
   },
   
   reportMarkdown(results: AnalysisResult): void {

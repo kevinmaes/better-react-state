@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import chalk from 'chalk';
+import kleur from 'kleur';
 import { analyzer } from './analyzer/index.js';
 import { reporter } from './reporter/index.js';
 import type { AnalysisOptions } from './types.js';
@@ -18,20 +18,20 @@ program
   .option('--fix', 'Automatically fix issues (experimental)', false)
   .option('--strict', 'Exit with error code if issues found', false)
   .action(async (path: string, options: AnalysisOptions) => {
-    console.log(chalk.blue.bold('🔍 Analyzing React state patterns...\n'));
+    console.log(kleur.blue().bold('🔍 Analyzing React state patterns...\n'));
     
     try {
       const results = await analyzer.analyze(path, options);
       
       if (results.issues.length === 0) {
-        console.log(chalk.green('✨ No state management issues found!'));
+        console.log(kleur.green('✨ No state management issues found!'));
         process.exit(0);
       }
       
       reporter.report(results, options.format);
       
       if (options.fix) {
-        console.log(chalk.yellow('\n🔧 Auto-fix is experimental. Please review changes carefully.'));
+        console.log(kleur.yellow('\n🔧 Auto-fix is experimental. Please review changes carefully.'));
         // TODO: Implement auto-fix functionality
       }
       
@@ -39,7 +39,7 @@ program
         process.exit(1);
       }
     } catch (error) {
-      console.error(chalk.red('❌ Error:'), error);
+      console.error(kleur.red('❌ Error:'), error);
       process.exit(1);
     }
   });
