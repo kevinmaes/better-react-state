@@ -1,4 +1,5 @@
 import traverse from '@babel/traverse';
+const { default: traverseFn } = traverse as any;
 import * as t from '@babel/types';
 import type { Rule, Issue } from '../types.js';
 import { isReactComponent, findUseStateCalls, getNodeLocation } from '../utils/ast-helpers.js';
@@ -15,7 +16,7 @@ export const groupRelatedStateRule: Rule = {
   check(ast: any, filename: string): Issue[] {
     const issues: Issue[] = [];
     
-    traverse(ast, {
+    (traverseFn || traverse)(ast, {
       FunctionDeclaration(path) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
@@ -92,34 +93,6 @@ function areRelated(state1: any, state2: any, allStates: any[]): boolean {
   const name1 = state1.name.toLowerCase();
   const name2 = state2.name.toLowerCase();
   
-  // Common patterns for related state
-  const patterns = [
-    // Form fields
-    { prefixes: ['user', 'form', 'input'], suffixes: ['name', 'email', 'password', 'phone', 'address'] },
-    // Loading states
-    { prefixes: ['is', 'has'], suffixes: ['loading', 'error', 'success', 'fetching'] },
-    // Data and metadata
-    { prefixes: [''], suffixes: ['data', 'error', 'loading', 'status'] },
-    // Coordinates/dimensions
-    { prefixes: [''], suffixes: ['x', 'y', 'width', 'height', 'top', 'left', 'right', 'bottom'] },
-    // Pagination
-    { prefixes: ['page', 'current'], suffixes: ['number', 'size', 'total', 'count'] },
-    // Selection
-    { prefixes: ['selected', 'checked'], suffixes: ['items', 'ids', 'values'] }
-  ];
-  
-  // Check if they share common prefixes or suffixes
-  for (const pattern of patterns) {
-    const matchesPattern1 = pattern.prefixes.some(p => name1.startsWith(p)) && 
-                           pattern.suffixes.some(s => name1.endsWith(s));
-    const matchesPattern2 = pattern.prefixes.some(p => name2.startsWith(p)) && 
-                           pattern.suffixes.some(s => name2.endsWith(s));
-    
-    if (matchesPattern1 && matchesPattern2) {
-      return true;
-    }
-  }
-  
   // Check for common base names (e.g., productId, productName, productPrice)
   const base1 = extractBaseName(name1);
   const base2 = extractBaseName(name2);
@@ -128,8 +101,34 @@ function areRelated(state1: any, state2: any, allStates: any[]): boolean {
     return true;
   }
   
-  // Check if they're used together in the same expressions
-  // This would require more complex analysis of the AST
+  // Common form field suffixes
+  const formFieldSuffixes = ['name', 'email', 'password', 'phone', 'address', 'city', 'state', 'zip', 'country'];
+  const isFormField1 = formFieldSuffixes.some(suffix => name1.endsWith(suffix));
+  const isFormField2 = formFieldSuffixes.some(suffix => name2.endsWith(suffix));
+  
+  if (isFormField1 && isFormField2) {
+    // Check if they might be part of the same form
+    // For now, consider all form fields as related
+    return true;
+  }
+  
+  // Loading/status state patterns
+  const statePatterns = ['loading', 'error', 'success', 'fetching', 'pending'];
+  const hasStatePattern1 = statePatterns.some(pattern => name1.includes(pattern));
+  const hasStatePattern2 = statePatterns.some(pattern => name2.includes(pattern));
+  
+  if (hasStatePattern1 && hasStatePattern2) {
+    return true;
+  }
+  
+  // Check for common prefixes
+  const commonPrefixes = ['is', 'has', 'should', 'can', 'will'];
+  const prefix1 = commonPrefixes.find(p => name1.startsWith(p));
+  const prefix2 = commonPrefixes.find(p => name2.startsWith(p));
+  
+  if (prefix1 && prefix2 && prefix1 === prefix2) {
+    return true;
+  }
   
   return false;
 }
@@ -137,8 +136,9 @@ function areRelated(state1: any, state2: any, allStates: any[]): boolean {
 function extractBaseName(name: string): string | null {
   // Common patterns: userId, userName -> user
   const patterns = [
-    /^(.+)(Id|Name|Email|Phone|Address|Date|Time|Count|Total|Size)$/i,
-    /^(is|has)(.+)$/i,
+    /^(.+)(Id|Name|Email|Phone|Address|Date|Time|Count|Total|Size|Price|Quantity|Status|Type|Description)$/i,
+    /^(is|has|should|can|will)(.+)$/i,
+    /^(first|last|middle)(.+)$/i,
   ];
   
   for (const pattern of patterns) {

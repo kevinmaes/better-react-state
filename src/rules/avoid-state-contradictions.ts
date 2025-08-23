@@ -1,4 +1,5 @@
 import traverse from '@babel/traverse';
+const { default: traverseFn } = traverse as any;
 import * as t from '@babel/types';
 import type { Rule, Issue } from '../types.js';
 import { isReactComponent, findUseStateCalls, getNodeLocation } from '../utils/ast-helpers.js';
@@ -14,7 +15,7 @@ export const avoidStateContradictionsRule: Rule = {
   check(ast: any, filename: string): Issue[] {
     const issues: Issue[] = [];
     
-    traverse(ast, {
+    (traverseFn || traverse)(ast, {
       FunctionDeclaration(path) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
@@ -74,10 +75,7 @@ function isBooleanState(state: any): boolean {
   const hasBooleanPrefix = booleanPrefixes.some(prefix => name.startsWith(prefix));
   
   // Check if initial value is boolean
-  const hasBoolean
-
-
-InitialValue = t.isBooleanLiteral(state.initialValue);
+  const hasBooleanInitialValue = t.isBooleanLiteral(state.initialValue);
   
   return hasBooleanPrefix || hasBooleanInitialValue;
 }

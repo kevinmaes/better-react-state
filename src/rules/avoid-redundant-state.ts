@@ -1,4 +1,5 @@
 import traverse from '@babel/traverse';
+const { default: traverseFn } = traverse as any;
 import * as t from '@babel/types';
 import type { Rule, Issue } from '../types.js';
 import { isReactComponent, findUseStateCalls, getNodeLocation } from '../utils/ast-helpers.js';
@@ -14,7 +15,7 @@ export const avoidRedundantStateRule: Rule = {
   check(ast: any, filename: string): Issue[] {
     const issues: Issue[] = [];
     
-    traverse(ast, {
+    (traverseFn || traverse)(ast, {
       FunctionDeclaration(path) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
