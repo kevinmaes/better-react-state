@@ -4,6 +4,7 @@ export interface AnalysisOptions {
   format: 'text' | 'json' | 'markdown';
   fix: boolean;
   strict: boolean;
+  verbose: boolean;
 }
 
 export interface Issue {
@@ -21,6 +22,9 @@ export interface Issue {
 
 export interface AnalysisResult {
   filesAnalyzed: number;
+  filesFound: number;
+  filesSkipped: string[];
+  reactComponentsFound: number;
   issues: Issue[];
   stats: {
     errors: number;

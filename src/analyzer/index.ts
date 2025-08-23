@@ -2,8 +2,10 @@ import { glob } from 'glob';
 import { readFile } from 'fs/promises';
 import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
+import * as t from '@babel/types';
 import type { AnalysisOptions, AnalysisResult, Issue } from '../types.js';
 import { rules } from '../rules/index.js';
+import { isReactComponent } from '../utils/ast-helpers.js';
 
 export const analyzer = {
   async analyze(path: string, options: AnalysisOptions): Promise<AnalysisResult> {
@@ -13,8 +15,18 @@ export const analyzer = {
       absolute: true
     });
     
+    if (options.verbose) {
+      console.log(`🔍 Found ${files.length} files matching pattern: ${options.pattern}`);
+      if (files.length > 0) {
+        console.log('📁 Files to analyze:');
+        files.forEach(file => console.log(`  - ${file}`));
+      }
+    }
+    
     const issues: Issue[] = [];
+    const filesSkipped: string[] = [];
     let filesAnalyzed = 0;
+    let reactComponentsFound = 0;
     
     for (const file of files) {
       try {
@@ -24,6 +36,27 @@ export const analyzer = {
           plugins: ['jsx', 'typescript']
         });
         
+        // Count React components in this file
+        let componentsInFile = 0;
+        const { default: traverseFn } = traverse as any;
+        (traverseFn || traverse)(ast, {
+          FunctionDeclaration(path: any) {
+            if (isReactComponent(path)) componentsInFile++;
+          },
+          FunctionExpression(path: any) {
+            if (isReactComponent(path)) componentsInFile++;
+          },
+          ArrowFunctionExpression(path: any) {
+            if (isReactComponent(path)) componentsInFile++;
+          }
+        });
+        
+        reactComponentsFound += componentsInFile;
+        
+        if (options.verbose) {
+          console.log(`📄 ${file}: ${componentsInFile} React component${componentsInFile !== 1 ? 's' : ''} found`);
+        }
+        
         // Run each rule on the AST
         for (const rule of rules) {
           const ruleIssues = rule.check(ast, file);
@@ -32,7 +65,12 @@ export const analyzer = {
         
         filesAnalyzed++;
       } catch (error) {
-        console.warn(`Skipping ${file}: ${error}`);
+        filesSkipped.push(file);
+        if (options.verbose) {
+          console.warn(`⚠️ Skipping ${file}: ${error}`);
+        } else {
+          console.warn(`Skipping ${file}: ${error}`);
+        }
       }
     }
     
@@ -49,6 +87,9 @@ export const analyzer = {
     
     return {
       filesAnalyzed,
+      filesFound: files.length,
+      filesSkipped,
+      reactComponentsFound,
       issues,
       stats
     };
