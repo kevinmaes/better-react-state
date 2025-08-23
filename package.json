@@ -46,7 +46,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:examples": "npm run build && node dist/cli.js examples/**/src --format text",
+    "test:todo-app": "npm run build && node dist/cli.js examples/todo-app-antipatterns/src --format text"
   },
   "dependencies": {
     "@babel/parser": "^7.24.0",
