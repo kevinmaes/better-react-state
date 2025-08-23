@@ -1,0 +1,72 @@
+{
+  "name": "fix-react-state",
+  "version": "0.1.0",
+  "description": "A tool to analyze and fix React state management antipatterns",
+  "keywords": [
+    "react",
+    "state-management",
+    "linter",
+    "code-quality",
+    "static-analysis",
+    "typescript"
+  ],
+  "homepage": "https://github.com/kevinmaes/fix-react-state",
+  "bugs": {
+    "url": "https://github.com/kevinmaes/fix-react-state/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kevinmaes/fix-react-state.git"
+  },
+  "license": "MIT",
+  "author": "Kevin Maes",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "fix-react-state": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@babel/parser": "^7.24.0",
+    "@babel/traverse": "^7.24.0",
+    "@babel/types": "^7.24.0",
+    "chalk": "^5.3.0",
+    "commander": "^12.0.0",
+    "glob": "^10.3.0"
+  },
+  "devDependencies": {
+    "@types/babel__traverse": "^7.20.0",
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
