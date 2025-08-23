@@ -4,8 +4,8 @@
 Create a powerful static analysis tool that helps React developers identify and fix state management antipatterns, promoting best practices and improving code quality.
 
 ## 🎯 Current Focus
-**Working on:** Implementing "Avoid Deeply Nested State" rule
-**Next up:** Implement "Avoid State Duplication" rule
+**Working on:** Implementing "Avoid State Duplication" rule
+**Next up:** Implement "Prefer Explicit State Transitions" rule
 
 ## Current Status (as of August 2024)
 
@@ -17,11 +17,12 @@ Create a powerful static analysis tool that helps React developers identify and 
   - [x] Testing with Vitest
   - [x] ESLint and Prettier configuration
   
-- [x] Rule Implementation (4/6)
+- [x] Rule Implementation (5/6)
   - [x] Group Related State - Detects multiple useState calls that should be combined
   - [x] Avoid State Contradictions - Identifies boolean states that can conflict
   - [x] Avoid Redundant State - Finds state that can be computed
   - [x] Avoid Deeply Nested State - Detects state nested more than 2-3 levels deep
+  - [x] Avoid State Duplication - Detects state that duplicates props or other state
   
 - [x] Output Formats
   - [x] Text output with colors
@@ -49,13 +50,13 @@ Create a powerful static analysis tool that helps React developers identify and 
 - [x] Update rules index
 
 **Avoid State Duplication Rule**
-- [ ] Create rule file `src/rules/avoid-state-duplication.ts`
-- [ ] Implement detection for duplicated state from props
-- [ ] Implement detection for duplicated state across components
-- [ ] Add suggestion for single source of truth
-- [ ] Create test fixtures with examples
-- [ ] Write unit tests
-- [ ] Update rules index
+- [x] Create rule file `src/rules/avoid-state-duplication.ts`
+- [x] Implement detection for duplicated state from props
+- [x] Implement detection for duplicated state across components
+- [x] Add suggestion for single source of truth
+- [x] Create test fixtures with examples
+- [x] Write unit tests
+- [x] Update rules index
 
 **Prefer Explicit State Transitions Rule**
 - [ ] Create rule file `src/rules/prefer-explicit-transitions.ts`
