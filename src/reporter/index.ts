@@ -29,7 +29,15 @@ export const reporter = {
     for (const [file, issues] of Object.entries(byFile)) {
       console.log(kleur.underline(file));
       
-      for (const issue of issues) {
+      // Sort by severity (error > warning > info), then by line number
+      const sortedIssues = issues.sort((a, b) => {
+        const severityOrder = { error: 0, warning: 1, info: 2 };
+        const severityDiff = severityOrder[a.severity] - severityOrder[b.severity];
+        if (severityDiff !== 0) return severityDiff;
+        return a.line - b.line;
+      });
+      
+      for (const issue of sortedIssues) {
         const icon = issue.severity === 'error' ? '❌' : 
                     issue.severity === 'warning' ? '⚠️' : 'ℹ️';
         const color = issue.severity === 'error' ? kleur.red :
@@ -74,7 +82,15 @@ export const reporter = {
     for (const [file, issues] of Object.entries(byFile)) {
       console.log(`### ${file}\n`);
       
-      for (const issue of issues) {
+      // Sort by severity (error > warning > info), then by line number
+      const sortedIssues = issues.sort((a, b) => {
+        const severityOrder = { error: 0, warning: 1, info: 2 };
+        const severityDiff = severityOrder[a.severity] - severityOrder[b.severity];
+        if (severityDiff !== 0) return severityDiff;
+        return a.line - b.line;
+      });
+      
+      for (const issue of sortedIssues) {
         const emoji = issue.severity === 'error' ? '🔴' :
                      issue.severity === 'warning' ? '🟡' : '🔵';
         
