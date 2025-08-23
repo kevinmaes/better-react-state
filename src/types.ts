@@ -20,11 +20,18 @@ export interface Issue {
   fixable?: boolean;
 }
 
+export interface ProjectContext {
+  hasXState: boolean;
+  hasXStateStore: boolean;
+  xstateVersion?: string;
+}
+
 export interface AnalysisResult {
   filesAnalyzed: number;
   filesFound: number;
   filesSkipped: string[];
   reactComponentsFound: number;
+  projectContext?: ProjectContext;
   issues: Issue[];
   stats: {
     errors: number;
@@ -38,5 +45,5 @@ export interface Rule {
   name: string;
   description: string;
   severity: 'error' | 'warning' | 'info';
-  check: (ast: any, filename: string) => Issue[];
+  check: (ast: any, filename: string, context?: ProjectContext) => Issue[];
 }

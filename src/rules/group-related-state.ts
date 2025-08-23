@@ -1,7 +1,7 @@
 import traverse from '@babel/traverse';
 const { default: traverseFn } = traverse as any;
 import * as t from '@babel/types';
-import type { Rule, Issue } from '../types.js';
+import type { Rule, Issue, ProjectContext } from '../types.js';
 import { isReactComponent, findUseStateCalls, getNodeLocation } from '../utils/ast-helpers.js';
 
 /**
@@ -13,7 +13,7 @@ export const groupRelatedStateRule: Rule = {
   description: 'Multiple related state variables should be grouped into a single state object',
   severity: 'warning',
   
-  check(ast: any, filename: string): Issue[] {
+  check(ast: any, filename: string, context?: ProjectContext): Issue[] {
     const issues: Issue[] = [];
     
     (traverseFn || traverse)(ast, {

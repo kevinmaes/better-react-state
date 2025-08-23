@@ -1,7 +1,7 @@
 import traverse from '@babel/traverse';
 const { default: traverseFn } = traverse as any;
 import * as t from '@babel/types';
-import type { Rule, Issue } from '../types.js';
+import type { Rule, Issue, ProjectContext } from '../types.js';
 import { isReactComponent, findUseStateCalls, getNodeLocation } from '../utils/ast-helpers.js';
 
 /**
@@ -12,23 +12,23 @@ export const preferExplicitTransitionsRule: Rule = {
   description: 'Complex state logic with multiple updates should use useReducer',
   severity: 'info',
   
-  check(ast: any, filename: string): Issue[] {
+  check(ast: any, filename: string, context?: ProjectContext): Issue[] {
     const issues: Issue[] = [];
     
     (traverseFn || traverse)(ast, {
       FunctionDeclaration(path: any) {
         if (isReactComponent(path)) {
-          checkComponent(path, filename, issues);
+          checkComponent(path, filename, issues, context);
         }
       },
       FunctionExpression(path: any) {
         if (isReactComponent(path)) {
-          checkComponent(path, filename, issues);
+          checkComponent(path, filename, issues, context);
         }
       },
       ArrowFunctionExpression(path: any) {
         if (isReactComponent(path)) {
-          checkComponent(path, filename, issues);
+          checkComponent(path, filename, issues, context);
         }
       }
     });
@@ -37,7 +37,7 @@ export const preferExplicitTransitionsRule: Rule = {
   }
 };
 
-function checkComponent(path: any, filename: string, issues: Issue[]): void {
+function checkComponent(path: any, filename: string, issues: Issue[], context?: ProjectContext): void {
   const stateCalls = findUseStateCalls(path);
   
   // Skip if already using useReducer
@@ -49,17 +49,20 @@ function checkComponent(path: any, filename: string, issues: Issue[]): void {
   const stateUpdatePatterns = analyzeStateUpdates(path, stateCalls);
   
   // Detect complex state logic patterns
-  if (shouldUseReducer(stateCalls, stateUpdatePatterns)) {
+  const complexity = getComplexityLevel(stateCalls, stateUpdatePatterns);
+  
+  if (complexity !== 'simple') {
     const location = getNodeLocation(path.node);
+    const suggestion = getSuggestion(complexity, stateCalls.length, context);
     
     issues.push({
       rule: 'prefer-explicit-transitions',
       severity: 'info',
-      message: `Component has ${stateCalls.length} state variables with complex update patterns that would benefit from useReducer`,
+      message: `Component has ${stateCalls.length} state variables with complex update patterns`,
       file: filename,
       line: location.line,
       column: location.column,
-      suggestion: `Consider using useReducer to make state transitions more explicit and predictable`,
+      suggestion,
       fixable: false // Complex refactoring
     });
   }
@@ -189,53 +192,67 @@ function areInSameScope(path1: any, path2: any): boolean {
   return block1 === block2;
 }
 
-function shouldUseReducer(
+function getComplexityLevel(
   stateCalls: any[],
   patterns: Map<string, StateUpdatePattern>
-): boolean {
-  // Criteria for suggesting useReducer:
+): 'simple' | 'moderate' | 'complex' {
+  const stateCount = stateCalls.length;
   
-  // 1. Many state variables (4+)
-  if (stateCalls.length >= 4) {
-    return true;
-  }
-  
-  // 2. Complex update patterns
+  // Count complexity indicators
   let complexUpdates = 0;
   let relatedUpdates = 0;
   let conditionalComplexity = 0;
   
   patterns.forEach(pattern => {
-    // Multiple states updated together
     if (pattern.updatesWithOthers.length >= 2) {
       relatedUpdates++;
     }
     
-    // Complex conditional logic
     if (pattern.conditionalUpdates >= 2) {
       conditionalComplexity++;
     }
     
-    // Depends on previous state
     if (pattern.dependsOnPrevState && pattern.updatesWithOthers.length > 0) {
       complexUpdates++;
     }
   });
   
-  // 3. Multiple related updates
-  if (relatedUpdates >= 2) {
-    return true;
+  // Determine complexity level
+  if (stateCount >= 8 || complexUpdates >= 3 || 
+      (conditionalComplexity >= 3 && stateCount >= 4)) {
+    return 'complex';
   }
   
-  // 4. Complex conditional state logic
-  if (conditionalComplexity >= 2 && stateCalls.length >= 3) {
-    return true;
+  if (stateCount >= 4 || relatedUpdates >= 2 || 
+      (conditionalComplexity >= 2 && stateCount >= 3) || 
+      complexUpdates >= 2) {
+    return 'moderate';
   }
   
-  // 5. Complex updates with dependencies
-  if (complexUpdates >= 2) {
-    return true;
+  return 'simple';
+}
+
+function getSuggestion(
+  complexity: 'moderate' | 'complex',
+  stateCount: number,
+  context?: ProjectContext
+): string {
+  if (complexity === 'moderate') {
+    if (context?.hasXStateStore) {
+      return 'Consider using @xstate/store (already in your project) for atomic, event-driven state updates';
+    } else if (context?.hasXState) {
+      return 'Consider using useReducer or @xstate/store for better state organization';
+    } else {
+      return 'Consider using useReducer to make state transitions more explicit and predictable';
+    }
   }
   
-  return false;
+  // complexity === 'complex'
+  if (context?.hasXState) {
+    return 'Consider using XState (already in your project) for complex state orchestration and visual modeling';
+  } else if (context?.hasXStateStore) {
+    return 'Consider using @xstate/store (already in your project) or upgrading to full XState for complex state machines';
+  } else {
+    return 'Consider using useReducer or exploring XState for complex state orchestration';
+  }
 }

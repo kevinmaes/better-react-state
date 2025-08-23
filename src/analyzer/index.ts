@@ -3,14 +3,50 @@ import { readFile } from 'fs/promises';
 import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
 import * as t from '@babel/types';
-import type { AnalysisOptions, AnalysisResult, Issue } from '../types.js';
+import path from 'path';
+import type { AnalysisOptions, AnalysisResult, Issue, ProjectContext } from '../types.js';
 import { rules } from '../rules/index.js';
 import { isReactComponent } from '../utils/ast-helpers.js';
 
+async function detectProjectContext(projectPath: string): Promise<ProjectContext> {
+  try {
+    const packageJsonPath = path.join(projectPath, 'package.json');
+    const packageJson = await readFile(packageJsonPath, 'utf-8');
+    const pkg = JSON.parse(packageJson);
+    
+    const allDeps = { ...pkg.dependencies || {}, ...pkg.devDependencies || {} };
+    
+    return {
+      hasXState: '@xstate/react' in allDeps || 'xstate' in allDeps,
+      hasXStateStore: '@xstate/store' in allDeps,
+      xstateVersion: allDeps['xstate'] || allDeps['@xstate/react']
+    };
+  } catch (error) {
+    // No package.json or error reading it
+    return {
+      hasXState: false,
+      hasXStateStore: false
+    };
+  }
+}
+
 export const analyzer = {
-  async analyze(path: string, options: AnalysisOptions): Promise<AnalysisResult> {
+  async analyze(projectPath: string, options: AnalysisOptions): Promise<AnalysisResult> {
+    // Detect project context first
+    const projectContext = await detectProjectContext(projectPath);
+    
+    if (options.verbose && (projectContext.hasXState || projectContext.hasXStateStore)) {
+      console.log('🎯 XState detected in project:');
+      if (projectContext.hasXState) {
+        console.log(`  - XState${projectContext.xstateVersion ? ` (${projectContext.xstateVersion})` : ''}`);
+      }
+      if (projectContext.hasXStateStore) {
+        console.log('  - @xstate/store');
+      }
+      console.log('');
+    }
     const files = await glob(options.pattern, {
-      cwd: path,
+      cwd: projectPath,
       ignore: options.ignore,
       absolute: true
     });
@@ -57,9 +93,9 @@ export const analyzer = {
           console.log(`📄 ${file}: ${componentsInFile} React component${componentsInFile !== 1 ? 's' : ''} found`);
         }
         
-        // Run each rule on the AST
+        // Run each rule on the AST with project context
         for (const rule of rules) {
-          const ruleIssues = rule.check(ast, file);
+          const ruleIssues = rule.check(ast, file, projectContext);
           issues.push(...ruleIssues);
         }
         
@@ -90,6 +126,7 @@ export const analyzer = {
       filesFound: files.length,
       filesSkipped,
       reactComponentsFound,
+      projectContext,
       issues,
       stats
     };
