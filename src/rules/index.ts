@@ -1,6 +1,10 @@
 import type { Rule } from '../types.js';
+import { groupRelatedStateRule } from './group-related-state.js';
+import { avoidStateContradictionsRule } from './avoid-state-contradictions.js';
+import { avoidRedundantStateRule } from './avoid-redundant-state.js';
 
-// TODO: Implement individual rules based on best-practices.md
 export const rules: Rule[] = [
-  // Placeholder - will be implemented next
+  groupRelatedStateRule,
+  avoidStateContradictionsRule,
+  avoidRedundantStateRule
 ];
