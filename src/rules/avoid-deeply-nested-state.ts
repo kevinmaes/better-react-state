@@ -16,17 +16,17 @@ export const avoidDeeplyNestedStateRule: Rule = {
     const issues: Issue[] = [];
     
     (traverseFn || traverse)(ast, {
-      FunctionDeclaration(path) {
+      FunctionDeclaration(path: any) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
         }
       },
-      FunctionExpression(path) {
+      FunctionExpression(path: any) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
         }
       },
-      ArrowFunctionExpression(path) {
+      ArrowFunctionExpression(path: any) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
         }
@@ -84,9 +84,13 @@ function getObjectDepth(node: any, currentDepth: number = 0): number {
     let maxDepth = currentDepth + 1;
     
     for (const property of node.properties) {
-      if (t.isObjectProperty(property) || t.isObjectMethod(property)) {
+      if (t.isObjectProperty(property)) {
         const propertyDepth = getObjectDepth(property.value, currentDepth + 1);
         maxDepth = Math.max(maxDepth, propertyDepth);
+      } else if (t.isObjectMethod(property)) {
+        // Object methods don't have a value to check depth
+        // We'll count them as current depth + 1
+        maxDepth = Math.max(maxDepth, currentDepth + 1);
       }
     }
     

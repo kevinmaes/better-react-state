@@ -16,17 +16,17 @@ export const avoidRedundantStateRule: Rule = {
     const issues: Issue[] = [];
     
     (traverseFn || traverse)(ast, {
-      FunctionDeclaration(path) {
+      FunctionDeclaration(path: any) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
         }
       },
-      FunctionExpression(path) {
+      FunctionExpression(path: any) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
         }
       },
-      ArrowFunctionExpression(path) {
+      ArrowFunctionExpression(path: any) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
         }
@@ -108,7 +108,7 @@ function checkForComputedUpdates(path: any, stateCalls: any[], filename: string,
   const setterNames = stateCalls.map(s => s.setterName);
   
   path.traverse({
-    CallExpression(callPath) {
+    CallExpression(callPath: any) {
       const { node } = callPath;
       
       // Check if it's a setter call
@@ -120,7 +120,7 @@ function checkForComputedUpdates(path: any, stateCalls: any[], filename: string,
         const siblingSetters: any[] = [];
         
         parent.traverse({
-          CallExpression(siblingPath) {
+          CallExpression(siblingPath: any) {
             if (siblingPath === callPath) return;
             
             const siblingNode = siblingPath.node;

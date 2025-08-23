@@ -16,17 +16,17 @@ export const avoidStateDuplicationRule: Rule = {
     const issues: Issue[] = [];
     
     (traverseFn || traverse)(ast, {
-      FunctionDeclaration(path) {
+      FunctionDeclaration(path: any) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
         }
       },
-      FunctionExpression(path) {
+      FunctionExpression(path: any) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
         }
       },
-      ArrowFunctionExpression(path) {
+      ArrowFunctionExpression(path: any) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
         }

@@ -14,8 +14,8 @@ export function isReactComponent(path: NodePath): boolean {
     const node = path.node;
     
     // Check if function name starts with uppercase (component convention)
-    if (path.isFunctionDeclaration() && node.id) {
-      return /^[A-Z]/.test(node.id.name);
+    if (path.isFunctionDeclaration() && (node as t.FunctionDeclaration).id) {
+      return /^[A-Z]/.test((node as t.FunctionDeclaration).id!.name);
     }
     
     // Check if it's assigned to a variable with uppercase name
