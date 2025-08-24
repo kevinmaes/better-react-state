@@ -33,6 +33,19 @@ program
         if (results.filesSkipped.length > 0) {
           console.log(`  Files skipped: ${results.filesSkipped.length}`);
         }
+        
+        // Show XState detection
+        if (results.projectContext?.hasXState || results.projectContext?.hasXStateStore) {
+          const xstateInfo = [];
+          if (results.projectContext.hasXState) {
+            xstateInfo.push(`XState${results.projectContext.xstateVersion ? ` (${results.projectContext.xstateVersion})` : ''}`);
+          }
+          if (results.projectContext.hasXStateStore) {
+            xstateInfo.push('@xstate/store');
+          }
+          console.log(`  XState available: ✓ ${xstateInfo.join(', ')}`);
+        }
+        
         console.log('');
       }
       

@@ -34,17 +34,6 @@ export const analyzer = {
   async analyze(projectPath: string, options: AnalysisOptions): Promise<AnalysisResult> {
     // Detect project context first
     const projectContext = await detectProjectContext(projectPath);
-    
-    if (options.verbose && (projectContext.hasXState || projectContext.hasXStateStore)) {
-      console.log('🎯 XState detected in project:');
-      if (projectContext.hasXState) {
-        console.log(`  - XState${projectContext.xstateVersion ? ` (${projectContext.xstateVersion})` : ''}`);
-      }
-      if (projectContext.hasXStateStore) {
-        console.log('  - @xstate/store');
-      }
-      console.log('');
-    }
     const files = await glob(options.pattern, {
       cwd: projectPath,
       ignore: options.ignore,

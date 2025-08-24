@@ -60,6 +60,18 @@ export const reporter = {
     console.log(`  Errors: ${kleur.red(results.stats.errors)}`);
     console.log(`  Warnings: ${kleur.yellow(results.stats.warnings)}`);
     console.log(`  Info: ${kleur.blue(results.stats.info)}`);
+    
+    // Show XState detection in summary
+    if (results.projectContext?.hasXState || results.projectContext?.hasXStateStore) {
+      const xstateInfo = [];
+      if (results.projectContext.hasXState) {
+        xstateInfo.push(`XState${results.projectContext.xstateVersion ? ` (${results.projectContext.xstateVersion})` : ''}`);
+      }
+      if (results.projectContext.hasXStateStore) {
+        xstateInfo.push('@xstate/store');
+      }
+      console.log(`  XState available: ${kleur.green('✓')} ${xstateInfo.join(', ')}`);
+    }
   },
   
   reportMarkdown(results: AnalysisResult): void {
@@ -106,5 +118,17 @@ export const reporter = {
     console.log(`- **Errors**: ${results.stats.errors}`);
     console.log(`- **Warnings**: ${results.stats.warnings}`);
     console.log(`- **Info**: ${results.stats.info}`);
+    
+    // Show XState detection in markdown summary
+    if (results.projectContext?.hasXState || results.projectContext?.hasXStateStore) {
+      const xstateInfo = [];
+      if (results.projectContext.hasXState) {
+        xstateInfo.push(`XState${results.projectContext.xstateVersion ? ` (${results.projectContext.xstateVersion})` : ''}`);
+      }
+      if (results.projectContext.hasXStateStore) {
+        xstateInfo.push('@xstate/store');
+      }
+      console.log(`- **XState available**: ✓ ${xstateInfo.join(', ')}`);
+    }
   }
 };
