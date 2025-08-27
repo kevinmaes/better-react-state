@@ -37,51 +37,16 @@ npx fix-react-state --strict
 
 ## What it detects
 
-### 1. Group Related State
+Analyzes React components for 6 common state management antipatterns:
 
-Detects multiple `useState` calls that should be combined into a single state object.
+- **Group Related State** - Multiple `useState` calls that should be combined
+- **Avoid State Contradictions** - Boolean states that create impossible UI states  
+- **Avoid Redundant State** - State that can be computed from existing state
+- **Avoid Deeply Nested State** - State objects nested more than 2 levels deep
+- **Avoid State Duplication** - Same data stored in multiple places
+- **Prefer Explicit Transitions** - Implicit state changes that need reducer patterns
 
-```javascript
-// ❌ Bad
-const [name, setName] = useState('');
-const [email, setEmail] = useState('');
-const [phone, setPhone] = useState('');
-
-// ✅ Good
-const [user, setUser] = useState({
-  name: '',
-  email: '',
-  phone: '',
-});
-```
-
-### 2. Avoid State Contradictions
-
-Identifies boolean states that can create impossible UI states.
-
-```javascript
-// ❌ Bad
-const [isLoading, setIsLoading] = useState(false);
-const [hasError, setHasError] = useState(false);
-const [isSuccess, setIsSuccess] = useState(false);
-
-// ✅ Good
-const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
-```
-
-### 3. Avoid Redundant State
-
-Finds state that can be computed from existing state.
-
-```javascript
-// ❌ Bad
-const [items, setItems] = useState([]);
-const [itemCount, setItemCount] = useState(0);
-
-// ✅ Good
-const [items, setItems] = useState([]);
-const itemCount = items.length; // Computed during render
-```
+See [docs/best-practices.md](docs/best-practices.md) for detailed examples and explanations.
 
 ## Philosophy
 
