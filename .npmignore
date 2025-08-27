@@ -1,0 +1,25 @@
+# Source files
+src/
+test/
+examples/
+
+# Configuration files
+.github/
+.eslintrc.json
+.prettierrc
+vitest.config.ts
+tsconfig.json
+
+# Development files
+coverage/
+*.log
+.DS_Store
+.env*
+
+# Documentation
+docs/
+roadmap.md
+*.test.ts
+*.spec.ts
+
+# Keep dist and README

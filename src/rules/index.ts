@@ -12,5 +12,5 @@ export const rules: Rule[] = [
   avoidRedundantStateRule,
   avoidDeeplyNestedStateRule,
   avoidStateDuplicationRule,
-  preferExplicitTransitionsRule
+  preferExplicitTransitionsRule,
 ];

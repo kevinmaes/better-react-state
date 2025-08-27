@@ -9,9 +9,9 @@ interface UserProps {
 // Example 1: State initialized from props
 export function BadPropsInit({ userId, userName }: UserProps) {
   // Bad: Initializing state from props can cause sync issues
-  const [id, setId] = useState(userId);
-  const [name, setName] = useState(userName);
-  
+  const [id, _setId] = useState(userId);
+  const [name, _setName] = useState(userName);
+
   // Props might change but state won't update automatically
   return (
     <div>
@@ -23,28 +23,28 @@ export function BadPropsInit({ userId, userName }: UserProps) {
 
 // Example 2: State duplicating other state
 export function BadStateDuplication() {
-  const [user, setUser] = useState({
+  const [user, _setUser] = useState({
     id: 1,
     name: 'John',
-    email: 'john@example.com'
+    email: 'john@example.com',
   });
-  
+
   // Bad: Duplicating user data in separate state
-  const [selectedUserId, setSelectedUserId] = useState(user.id);
+  const [_selectedUserId, setSelectedUserId] = useState(user.id);
   const [displayName, setDisplayName] = useState(user.name);
-  
-  const selectUser = () => {
+
+  const _selectUser = () => {
     // Updating multiple states that duplicate data
     setSelectedUserId(user.id);
     setDisplayName(user.name);
   };
-  
+
   return <div>{displayName}</div>;
 }
 
 // Example 3: Storing entire object when only using part
 export function BadSelectiveUsage() {
-  const [fullUserData, setFullUserData] = useState({
+  const [fullUserData, _setFullUserData] = useState({
     id: 1,
     name: 'John',
     email: 'john@example.com',
@@ -55,9 +55,9 @@ export function BadSelectiveUsage() {
     zip: '02101',
     country: 'USA',
     avatar: 'avatar.jpg',
-    bio: 'Lorem ipsum...'
+    bio: 'Lorem ipsum...',
   });
-  
+
   // Only using name and email in component
   return (
     <div>
@@ -81,25 +81,23 @@ export function GoodPropsUsage({ userId, userName }: UserProps) {
 // Example 5: Good - Deriving state when needed
 export function GoodDerivedState({ userId }: UserProps) {
   const [userDetails, setUserDetails] = useState(null);
-  
+
   // Good: Derive state from props when necessary
   useEffect(() => {
     fetchUserDetails(userId).then(setUserDetails);
   }, [userId]);
-  
+
   return <div>{userDetails?.name}</div>;
 }
 
 // Example 6: Good - Single source of truth
 export function GoodSingleSource() {
-  const [users, setUsers] = useState([
-    { id: 1, name: 'John', email: 'john@example.com' }
-  ]);
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
-  
+  const [users, _setUsers] = useState([{ id: 1, name: 'John', email: 'john@example.com' }]);
+  const [selectedUserId, _setSelectedUserId] = useState<number | null>(null);
+
   // Good: Derive selected user from single source
-  const selectedUser = users.find(u => u.id === selectedUserId);
-  
+  const selectedUser = users.find((u) => u.id === selectedUserId);
+
   return (
     <div>
       {selectedUser && (
@@ -113,6 +111,6 @@ export function GoodSingleSource() {
 }
 
 // Helper function for examples
-async function fetchUserDetails(userId: string) {
+async function fetchUserDetails(_userId: string) {
   return { name: 'John Doe', email: 'john@example.com' };
 }

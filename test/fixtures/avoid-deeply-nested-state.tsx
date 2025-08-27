@@ -9,25 +9,25 @@ export function BadUserProfile() {
           name: {
             first: 'John',
             middle: 'Q',
-            last: 'Doe'
+            last: 'Doe',
           },
           address: {
             street: '123 Main St',
             city: 'Boston',
             state: 'MA',
-            country: 'USA'
-          }
+            country: 'USA',
+          },
         },
         professional: {
           company: 'Tech Corp',
-          position: 'Developer'
-        }
-      }
-    }
+          position: 'Developer',
+        },
+      },
+    },
   });
-  
+
   // Complex update to change city
-  const updateCity = (newCity: string) => {
+  const _updateCity = (newCity: string) => {
     setUser({
       ...user,
       profile: {
@@ -38,34 +38,34 @@ export function BadUserProfile() {
             ...user.profile.details.personal,
             address: {
               ...user.profile.details.personal.address,
-              city: newCity
-            }
-          }
-        }
-      }
+              city: newCity,
+            },
+          },
+        },
+      },
     });
   };
-  
+
   return <div>{user.profile.details.personal.address.city}</div>;
 }
 
 // Example 2: Deeply nested app state
 export function BadAppState() {
-  const [appState, setAppState] = useState({
+  const [_appState, _setAppState] = useState({
     ui: {
       modals: {
         settings: {
           tabs: {
             general: {
               isOpen: false,
-              content: {}
-            }
-          }
-        }
-      }
-    }
+              content: {},
+            },
+          },
+        },
+      },
+    },
   });
-  
+
   return <div>App</div>;
 }
 
@@ -80,45 +80,45 @@ export function GoodUserProfile() {
     state: 'MA',
     country: 'USA',
     company: 'Tech Corp',
-    position: 'Developer'
+    position: 'Developer',
   });
-  
-  const updateCity = (newCity: string) => {
+
+  const _updateCity = (newCity: string) => {
     setUserProfile({
       ...userProfile,
-      city: newCity
+      city: newCity,
     });
   };
-  
+
   return <div>{userProfile.city}</div>;
 }
 
 // Example 4: Good - Normalized state
 export function GoodNormalizedState() {
-  const [entities, setEntities] = useState({
+  const [_entities, _setEntities] = useState({
     users: {
-      1: { id: 1, name: 'John', addressId: 'addr1' }
+      1: { id: 1, name: 'John', addressId: 'addr1' },
     },
     addresses: {
-      addr1: { id: 'addr1', street: '123 Main St', city: 'Boston' }
-    }
+      addr1: { id: 'addr1', street: '123 Main St', city: 'Boston' },
+    },
   });
-  
+
   return <div>Normalized</div>;
 }
 
 // Example 5: Acceptable - 2 levels deep
 export function AcceptableNesting() {
-  const [settings, setSettings] = useState({
+  const [_settings, _setSettings] = useState({
     theme: {
       primary: 'blue',
-      secondary: 'gray'
+      secondary: 'gray',
     },
     notifications: {
       email: true,
-      push: false
-    }
+      push: false,
+    },
   });
-  
+
   return <div>Settings</div>;
 }

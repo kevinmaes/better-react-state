@@ -5,16 +5,16 @@ export function BadFormWithMultipleStates() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [submitCount, setSubmitCount] = useState(0);
-  
+  const [_isSubmitting, setIsSubmitting] = useState(false);
+  const [_errors, setErrors] = useState<Record<string, string>>({});
+  const [_submitCount, setSubmitCount] = useState(0);
+
   const handleSubmit = async () => {
     // Multiple state updates together
     setIsSubmitting(true);
     setErrors({});
-    setSubmitCount(prev => prev + 1);
-    
+    setSubmitCount((prev) => prev + 1);
+
     try {
       await submitForm({ name, email, password });
       // More updates together
@@ -27,7 +27,7 @@ export function BadFormWithMultipleStates() {
       setIsSubmitting(false);
     }
   };
-  
+
   const handleReset = () => {
     // Another group of updates
     setName('');
@@ -36,12 +36,12 @@ export function BadFormWithMultipleStates() {
     setErrors({});
     setSubmitCount(0);
   };
-  
+
   return (
     <form>
-      <input value={name} onChange={e => setName(e.target.value)} />
-      <input value={email} onChange={e => setEmail(e.target.value)} />
-      <input value={password} onChange={e => setPassword(e.target.value)} />
+      <input value={name} onChange={(e) => setName(e.target.value)} />
+      <input value={email} onChange={(e) => setEmail(e.target.value)} />
+      <input value={password} onChange={(e) => setPassword(e.target.value)} />
       <button onClick={handleSubmit}>Submit</button>
       <button onClick={handleReset}>Reset</button>
     </form>
@@ -51,16 +51,16 @@ export function BadFormWithMultipleStates() {
 // Example 2: Complex conditional state logic
 export function BadConditionalStateUpdates() {
   const [status, setStatus] = useState('idle');
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
+  const [_data, setData] = useState(null);
+  const [_error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
-  
-  const fetchData = async () => {
+
+  const _fetchData = async () => {
     if (status === 'loading') return;
-    
+
     setStatus('loading');
     setError(null);
-    
+
     try {
       const result = await fetch('/api/data');
       if (result.ok) {
@@ -71,21 +71,21 @@ export function BadConditionalStateUpdates() {
         setStatus('error');
         setError('Failed to fetch');
         if (retryCount < 3) {
-          setRetryCount(prev => prev + 1);
+          setRetryCount((prev) => prev + 1);
         }
       }
     } catch (err) {
       setStatus('error');
-      setError(err.message);
-      setRetryCount(prev => prev + 1);
+      setError((err as any).message);
+      setRetryCount((prev) => prev + 1);
     }
   };
-  
+
   return <div>{status}</div>;
 }
 
 // Example 3: Good - Already using useReducer
-type FormAction = 
+type FormAction =
   | { type: 'START_SUBMIT' }
   | { type: 'SUBMIT_SUCCESS' }
   | { type: 'SUBMIT_ERROR'; errors: Record<string, string> }
@@ -108,7 +108,7 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
         ...state,
         isSubmitting: true,
         errors: {},
-        submitCount: state.submitCount + 1
+        submitCount: state.submitCount + 1,
       };
     case 'SUBMIT_SUCCESS':
       return {
@@ -116,18 +116,18 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
         isSubmitting: false,
         name: '',
         email: '',
-        password: ''
+        password: '',
       };
     case 'SUBMIT_ERROR':
       return {
         ...state,
         isSubmitting: false,
-        errors: action.errors
+        errors: action.errors,
       };
     case 'UPDATE_FIELD':
       return {
         ...state,
-        [action.field]: action.value
+        [action.field]: action.value,
       };
     case 'RESET':
       return {
@@ -136,7 +136,7 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
         password: '',
         isSubmitting: false,
         errors: {},
-        submitCount: 0
+        submitCount: 0,
       };
     default:
       return state;
@@ -150,12 +150,12 @@ export function GoodFormWithReducer() {
     password: '',
     isSubmitting: false,
     errors: {},
-    submitCount: 0
+    submitCount: 0,
   });
-  
+
   const handleSubmit = async () => {
     dispatch({ type: 'START_SUBMIT' });
-    
+
     try {
       await submitForm(state);
       dispatch({ type: 'SUBMIT_SUCCESS' });
@@ -163,12 +163,12 @@ export function GoodFormWithReducer() {
       dispatch({ type: 'SUBMIT_ERROR', errors: err.errors });
     }
   };
-  
+
   return (
     <form>
-      <input 
-        value={state.name} 
-        onChange={e => dispatch({ type: 'UPDATE_FIELD', field: 'name', value: e.target.value })} 
+      <input
+        value={state.name}
+        onChange={(e) => dispatch({ type: 'UPDATE_FIELD', field: 'name', value: e.target.value })}
       />
       <button onClick={handleSubmit}>Submit</button>
       <button onClick={() => dispatch({ type: 'RESET' })}>Reset</button>
@@ -180,7 +180,7 @@ export function GoodFormWithReducer() {
 export function GoodSimpleComponent() {
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
-  
+
   return (
     <div>
       {isVisible && <p>Count: {count}</p>}

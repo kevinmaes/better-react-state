@@ -15,20 +15,20 @@ export function App() {
             notifications: {
               email: true,
               push: false,
-              sms: false
-            }
-          }
-        }
-      }
+              sms: false,
+            },
+          },
+        },
+      },
     },
     ui: {
       modals: {
         addTodo: {
           isOpen: false,
-          position: { x: 0, y: 0 }
-        }
-      }
-    }
+          position: { x: 0, y: 0 },
+        },
+      },
+    },
   });
 
   // ANTIPATTERN 2: Multiple related states that should be grouped
@@ -37,17 +37,17 @@ export function App() {
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('asc');
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // ANTIPATTERN 3: Contradicting boolean states
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  
+
   // ANTIPATTERN 4: Redundant state (can be computed)
   const [completedCount, setCompletedCount] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
-  
+
   // ANTIPATTERN 5: State duplication
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
   const [selectedTodoId, setSelectedTodoId] = useState<string>('');
@@ -59,9 +59,9 @@ export function App() {
       id: Date.now().toString(),
       title,
       completed: false,
-      createdAt: new Date()
+      createdAt: new Date(),
     };
-    
+
     // Multiple state updates together
     setTodos([...todos, newTodo]);
     setTotalCount(totalCount + 1);
@@ -72,14 +72,14 @@ export function App() {
   };
 
   const toggleTodo = (id: string) => {
-    const updatedTodos = todos.map(todo =>
+    const updatedTodos = todos.map((todo) =>
       todo.id === id ? { ...todo, completed: !todo.completed } : todo
     );
     setTodos(updatedTodos);
-    
+
     // Manually updating computed values
-    const completed = updatedTodos.filter(t => t.completed).length;
-    const pending = updatedTodos.filter(t => !t.completed).length;
+    const completed = updatedTodos.filter((t) => t.completed).length;
+    const pending = updatedTodos.filter((t) => !t.completed).length;
     setCompletedCount(completed);
     setPendingCount(pending);
   };
@@ -103,18 +103,18 @@ export function App() {
             ...appState.user.profile.settings,
             preferences: {
               ...appState.user.profile.settings.preferences,
-              theme
-            }
-          }
-        }
-      }
+              theme,
+            },
+          },
+        },
+      },
     });
   };
 
   return (
     <div className="app">
       <h1>Todo App (With Antipatterns)</h1>
-      
+
       <div className="status">
         {isLoading && <span>Loading...</span>}
         {hasError && <span>Error occurred!</span>}
@@ -122,11 +122,11 @@ export function App() {
       </div>
 
       <TodoForm onAdd={addTodo} />
-      
+
       <div className="filters">
-        <input 
-          type="text" 
-          value={searchQuery} 
+        <input
+          type="text"
+          value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search todos..."
         />
@@ -144,13 +144,9 @@ export function App() {
         </button>
       </div>
 
-      <TodoStats 
-        total={totalCount}
-        completed={completedCount}
-        pending={pendingCount}
-      />
+      <TodoStats total={totalCount} completed={completedCount} pending={pendingCount} />
 
-      <TodoList 
+      <TodoList
         todos={todos}
         filter={filter}
         searchQuery={searchQuery}

@@ -5,6 +5,7 @@ This directory contains example React applications with intentional state manage
 ## Quick Start
 
 ### 1. Build the CLI tool
+
 ```bash
 # From the project root
 npm run build
@@ -13,6 +14,7 @@ npm run build
 ### 2. Test on Examples
 
 #### Option A: Use npm scripts
+
 ```bash
 # Test all examples
 npm run test:examples
@@ -22,6 +24,7 @@ npm run test:todo-app
 ```
 
 #### Option B: Run CLI directly
+
 ```bash
 # From project root
 node dist/cli.js examples/todo-app-antipatterns/src
@@ -35,6 +38,7 @@ node dist/cli.js examples/todo-app-antipatterns/src --format markdown > report.m
 ```
 
 #### Option C: Use npx (after npm link)
+
 ```bash
 # First, link the package locally
 npm link
@@ -47,16 +51,19 @@ fix-react-state examples/todo-app-antipatterns/src --format text
 ## Available Examples
 
 ### 1. Todo App with Antipatterns
+
 - **Location**: `todo-app-antipatterns/`
 - **Issues**: 30 violations across all 6 rule types
 - **Purpose**: Comprehensive demonstration of what NOT to do
 
 ### 2. Shopping Cart (Coming Soon)
+
 - **Location**: `shopping-cart-antipatterns/`
 - **Issues**: Focus on state duplication and computed values
 - **Purpose**: E-commerce specific patterns
 
 ### 3. Complex Form (Coming Soon)
+
 - **Location**: `form-antipatterns/`
 - **Issues**: Focus on form state management
 - **Purpose**: Form-specific antipatterns
@@ -79,6 +86,7 @@ Options:
 ## Understanding the Output
 
 ### Text Format (Default)
+
 ```
 🔍 Analyzing React state patterns...
 
@@ -91,6 +99,7 @@ Found 30 issues in 4 files:
 ```
 
 ### JSON Format
+
 ```json
 {
   "filesAnalyzed": 4,
@@ -105,6 +114,7 @@ Found 30 issues in 4 files:
 ```
 
 ### Markdown Format
+
 Creates a formatted report suitable for documentation or GitHub issues.
 
 ## Resetting Examples
@@ -134,7 +144,7 @@ export function TestComponent() {
   // Add your antipatterns here
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  
+
   return <div>{firstName} {lastName}</div>;
 }' > test-component.tsx
 

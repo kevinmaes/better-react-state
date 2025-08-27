@@ -8,16 +8,16 @@ describe('preferExplicitTransitionsRule', () => {
     const code = readFileSync(`test/fixtures/${filename}`, 'utf-8');
     return parse(code, {
       sourceType: 'module',
-      plugins: ['jsx', 'typescript']
+      plugins: ['jsx', 'typescript'],
     });
   };
 
   it('should detect multiple states updated together', () => {
     const ast = parseFixture('prefer-explicit-transitions.tsx');
     const issues = preferExplicitTransitionsRule.check(ast, 'test.tsx');
-    
+
     // Should find issue in BadFormWithMultipleStates
-    const formIssues = issues.filter(i => 
+    const formIssues = issues.filter((i) =>
       i.message.includes('6 state variables with complex update patterns')
     );
     expect(formIssues).toHaveLength(1);
@@ -28,9 +28,9 @@ describe('preferExplicitTransitionsRule', () => {
   it('should detect complex conditional state logic', () => {
     const ast = parseFixture('prefer-explicit-transitions.tsx');
     const issues = preferExplicitTransitionsRule.check(ast, 'test.tsx');
-    
+
     // Should find issue in BadConditionalStateUpdates
-    const conditionalIssues = issues.filter(i => 
+    const conditionalIssues = issues.filter((i) =>
       i.message.includes('4 state variables with complex update patterns')
     );
     expect(conditionalIssues).toHaveLength(1);
@@ -40,10 +40,10 @@ describe('preferExplicitTransitionsRule', () => {
   it('should not flag components already using useReducer', () => {
     const ast = parseFixture('prefer-explicit-transitions.tsx');
     const issues = preferExplicitTransitionsRule.check(ast, 'test.tsx');
-    
+
     // Should not find issues in GoodFormWithReducer
-    const reducerIssues = issues.filter(i => 
-      i.line >= 146 && i.line <= 177 // GoodFormWithReducer range
+    const reducerIssues = issues.filter(
+      (i) => i.line >= 146 && i.line <= 177 // GoodFormWithReducer range
     );
     expect(reducerIssues).toHaveLength(0);
   });
@@ -51,10 +51,10 @@ describe('preferExplicitTransitionsRule', () => {
   it('should not flag simple components', () => {
     const ast = parseFixture('prefer-explicit-transitions.tsx');
     const issues = preferExplicitTransitionsRule.check(ast, 'test.tsx');
-    
+
     // Should not find issues in GoodSimpleComponent
-    const simpleIssues = issues.filter(i => 
-      i.line >= 180 // GoodSimpleComponent starts here
+    const simpleIssues = issues.filter(
+      (i) => i.line >= 180 // GoodSimpleComponent starts here
     );
     expect(simpleIssues).toHaveLength(0);
   });
@@ -73,12 +73,12 @@ describe('preferExplicitTransitionsRule', () => {
         return <div />;
       }
     `;
-    
+
     const ast = parse(code, {
       sourceType: 'module',
-      plugins: ['jsx', 'typescript']
+      plugins: ['jsx', 'typescript'],
     });
-    
+
     const issues = preferExplicitTransitionsRule.check(ast, 'test.tsx');
     expect(issues).toHaveLength(1);
     expect(issues[0].message).toContain('4 state variables');
@@ -110,12 +110,12 @@ describe('preferExplicitTransitionsRule', () => {
         return <button onClick={handleFetch}>Fetch</button>;
       }
     `;
-    
+
     const ast = parse(code, {
       sourceType: 'module',
-      plugins: ['jsx', 'typescript']
+      plugins: ['jsx', 'typescript'],
     });
-    
+
     const issues = preferExplicitTransitionsRule.check(ast, 'test.tsx');
     expect(issues).toHaveLength(1);
     expect(issues[0].message).toContain('complex update patterns');
@@ -124,9 +124,9 @@ describe('preferExplicitTransitionsRule', () => {
   it('should provide info severity for all issues', () => {
     const ast = parseFixture('prefer-explicit-transitions.tsx');
     const issues = preferExplicitTransitionsRule.check(ast, 'test.tsx');
-    
+
     // All issues should be info level
-    issues.forEach(issue => {
+    issues.forEach((issue) => {
       expect(issue.severity).toBe('info');
     });
   });
@@ -134,9 +134,9 @@ describe('preferExplicitTransitionsRule', () => {
   it('should suggest useReducer in all cases', () => {
     const ast = parseFixture('prefer-explicit-transitions.tsx');
     const issues = preferExplicitTransitionsRule.check(ast, 'test.tsx');
-    
+
     // All issues should suggest useReducer
-    issues.forEach(issue => {
+    issues.forEach((issue) => {
       expect(issue.suggestion).toContain('useReducer');
       expect(issue.suggestion).toContain('explicit and predictable');
     });

@@ -1,12 +1,15 @@
 # XState Detection Implementation Plan
 
 ## Overview
+
 Enhance fix-react-state to detect existing XState usage and provide context-aware suggestions.
 
 ## Detection Strategy
 
 ### 1. Package Detection
+
 Check for XState in dependencies:
+
 ```typescript
 // In analyzer
 async function detectXStateInProject(projectPath: string): Promise<{
@@ -17,13 +20,13 @@ async function detectXStateInProject(projectPath: string): Promise<{
   try {
     const packageJson = await readFile(path.join(projectPath, 'package.json'), 'utf-8');
     const pkg = JSON.parse(packageJson);
-    
+
     const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-    
+
     return {
       hasXState: '@xstate/react' in deps || 'xstate' in deps,
       hasXStateStore: '@xstate/store' in deps,
-      version: deps['xstate'] || deps['@xstate/react']
+      version: deps['xstate'] || deps['@xstate/react'],
     };
   } catch {
     return { hasXState: false, hasXStateStore: false };
@@ -32,7 +35,9 @@ async function detectXStateInProject(projectPath: string): Promise<{
 ```
 
 ### 2. Import Detection
+
 Check for XState imports in analyzed files:
+
 ```typescript
 function detectXStateImports(ast: any): {
   usesXState: boolean;
@@ -42,31 +47,33 @@ function detectXStateImports(ast: any): {
   const imports = {
     usesXState: false,
     usesXStateStore: false,
-    importTypes: []
+    importTypes: [],
   };
-  
+
   traverse(ast, {
     ImportDeclaration(path) {
       const source = path.node.source.value;
-      
+
       if (source === 'xstate' || source === '@xstate/react') {
         imports.usesXState = true;
         imports.importTypes.push('xstate');
       }
-      
+
       if (source === '@xstate/store') {
         imports.usesXStateStore = true;
         imports.importTypes.push('store');
       }
-    }
+    },
   });
-  
+
   return imports;
 }
 ```
 
 ### 3. Usage Pattern Detection
+
 Detect actual XState usage patterns:
+
 ```typescript
 function detectXStatePatterns(ast: any): {
   usesMachine: boolean;
@@ -85,10 +92,11 @@ function detectXStatePatterns(ast: any): {
 ## Enhanced Suggestion Logic
 
 ### Context-Aware Suggestions
+
 ```typescript
 function getSuggestion(complexity: string, projectContext: ProjectContext): string {
   const { hasXState, hasXStateStore } = projectContext;
-  
+
   if (complexity === 'moderate') {
     if (hasXStateStore) {
       return 'Consider using @xstate/store (already in your project) for atomic, event-driven updates';
@@ -98,7 +106,7 @@ function getSuggestion(complexity: string, projectContext: ProjectContext): stri
       return 'Consider using useReducer for better state organization';
     }
   }
-  
+
   if (complexity === 'complex') {
     if (hasXState) {
       return 'Consider using XState (already in your project) for complex state orchestration';
@@ -108,7 +116,7 @@ function getSuggestion(complexity: string, projectContext: ProjectContext): stri
       return 'Consider using useReducer or exploring XState for complex state orchestration';
     }
   }
-  
+
   return 'Consider using useReducer for better state organization';
 }
 ```
@@ -116,16 +124,19 @@ function getSuggestion(complexity: string, projectContext: ProjectContext): stri
 ## Implementation Steps
 
 ### Phase 1: Basic Detection
+
 1. Add package.json detection to analyzer
 2. Store XState availability in AnalysisResult
 3. Pass context to rules
 
 ### Phase 2: Import Detection
+
 1. Add import detection to each file analysis
 2. Track which components use XState
 3. Don't suggest XState to components already using it
 
 ### Phase 3: Smart Suggestions
+
 1. Update all relevant rules to use context
 2. Provide migration-aware suggestions
 3. Show examples using their existing tools
@@ -133,6 +144,7 @@ function getSuggestion(complexity: string, projectContext: ProjectContext): stri
 ## Example Output
 
 ### When XState is detected:
+
 ```
 📊 Analysis Summary:
   Files analyzed: 10
@@ -146,6 +158,7 @@ function getSuggestion(complexity: string, projectContext: ProjectContext): stri
 ```
 
 ### When XState is NOT detected:
+
 ```
 /src/components/ComplexForm.tsx
   ℹ️ [prefer-explicit-transitions] Component has 8 state variables with complex patterns

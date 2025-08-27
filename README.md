@@ -1,5 +1,9 @@
 # fix-react-state
 
+[![CI](https://github.com/kevinmaes/fix-react-state/actions/workflows/ci.yml/badge.svg)](https://github.com/kevinmaes/fix-react-state/actions/workflows/ci.yml)
+[![npm version](https://badge.fury.io/js/fix-react-state.svg)](https://www.npmjs.com/package/fix-react-state)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A tool to analyze and fix React state management antipatterns.
 
 ## Installation
@@ -34,6 +38,7 @@ npx fix-react-state --strict
 ## What it detects
 
 ### 1. Group Related State
+
 Detects multiple `useState` calls that should be combined into a single state object.
 
 ```javascript
@@ -46,11 +51,12 @@ const [phone, setPhone] = useState('');
 const [user, setUser] = useState({
   name: '',
   email: '',
-  phone: ''
+  phone: '',
 });
 ```
 
 ### 2. Avoid State Contradictions
+
 Identifies boolean states that can create impossible UI states.
 
 ```javascript
@@ -64,6 +70,7 @@ const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'success' 
 ```
 
 ### 3. Avoid Redundant State
+
 Finds state that can be computed from existing state.
 
 ```javascript
@@ -79,6 +86,7 @@ const itemCount = items.length; // Computed during render
 ## Philosophy
 
 This tool promotes:
+
 - **Explicit over implicit** state changes
 - **Type-safe** state transitions
 - **Single source of truth** for data

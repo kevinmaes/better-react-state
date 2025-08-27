@@ -14,7 +14,8 @@ describe('analyzer', () => {
     ignore: ['node_modules/**'],
     format: 'text',
     fix: false,
-    strict: false
+    strict: false,
+    verbose: false,
   };
 
   beforeEach(() => {
@@ -29,7 +30,7 @@ describe('analyzer', () => {
     // Mock glob to return test files
     vi.mocked(glob).mockResolvedValue([
       '/project/src/Component1.tsx',
-      '/project/src/Component2.tsx'
+      '/project/src/Component2.tsx',
     ]);
 
     // Mock file contents
@@ -51,7 +52,7 @@ describe('analyzer', () => {
     expect(glob).toHaveBeenCalledWith('**/*.tsx', {
       cwd: '/project',
       ignore: ['node_modules/**'],
-      absolute: true
+      absolute: true,
     });
 
     expect(result.filesAnalyzed).toBe(2);
@@ -60,9 +61,7 @@ describe('analyzer', () => {
   });
 
   it('should handle parse errors gracefully', async () => {
-    vi.mocked(glob).mockResolvedValue([
-      '/project/src/Invalid.tsx'
-    ]);
+    vi.mocked(glob).mockResolvedValue(['/project/src/Invalid.tsx']);
 
     // Mock invalid JavaScript
     vi.mocked(fs.readFile).mockResolvedValue('const invalid syntax {');
@@ -120,9 +119,7 @@ describe('analyzer', () => {
   });
 
   it('should handle file read errors', async () => {
-    vi.mocked(glob).mockResolvedValue([
-      '/project/src/Component.tsx'
-    ]);
+    vi.mocked(glob).mockResolvedValue(['/project/src/Component.tsx']);
 
     vi.mocked(fs.readFile).mockRejectedValue(new Error('Permission denied'));
 
@@ -141,7 +138,7 @@ describe('analyzer', () => {
   it('should respect ignore patterns', async () => {
     const optionsWithIgnore: AnalysisOptions = {
       ...mockOptions,
-      ignore: ['node_modules/**', 'dist/**', '*.test.tsx']
+      ignore: ['node_modules/**', 'dist/**', '*.test.tsx'],
     };
 
     vi.mocked(glob).mockResolvedValue([]);
@@ -151,7 +148,7 @@ describe('analyzer', () => {
     expect(glob).toHaveBeenCalledWith('**/*.tsx', {
       cwd: '/project',
       ignore: ['node_modules/**', 'dist/**', '*.test.tsx'],
-      absolute: true
+      absolute: true,
     });
   });
 
@@ -190,9 +187,9 @@ describe('analyzer', () => {
     const result = await analyzer.analyze('/project', mockOptions);
 
     // Should have issues from multiple rules
-    const ruleNames = new Set(result.issues.map(issue => issue.rule));
+    const ruleNames = new Set(result.issues.map((issue) => issue.rule));
     expect(ruleNames.size).toBeGreaterThan(1);
-    
+
     // Check that we have issues from different rules
     expect(result.stats.byRule).toBeDefined();
     expect(Object.keys(result.stats.byRule).length).toBeGreaterThan(1);
@@ -218,7 +215,7 @@ describe('analyzer', () => {
     const result = await analyzer.analyze('/project', mockOptions);
 
     // All issues should have the correct file path
-    result.issues.forEach(issue => {
+    result.issues.forEach((issue) => {
       expect(issue.file).toBe(testFile);
     });
   });

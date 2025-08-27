@@ -1,5 +1,5 @@
 import traverse from '@babel/traverse';
-const { default: traverseFn } = traverse as any;
+import { type NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
 import type { Rule, Issue, ProjectContext } from '../types.js';
 import { isReactComponent, findUseStateCalls, getNodeLocation } from '../utils/ast-helpers.js';
@@ -11,40 +11,41 @@ export const avoidRedundantStateRule: Rule = {
   name: 'avoid-redundant-state',
   description: 'State that can be computed should not be stored separately',
   severity: 'warning',
-  
-  check(ast: any, filename: string, context?: ProjectContext): Issue[] {
+
+  check(ast: t.File, filename: string, _context?: ProjectContext): Issue[] {
     const issues: Issue[] = [];
-    
-    (traverseFn || traverse)(ast, {
-      FunctionDeclaration(path: any) {
+
+    const traverseFn = typeof traverse === 'function' ? traverse : (traverse as any).default;
+    traverseFn(ast, {
+      FunctionDeclaration(path: NodePath) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
         }
       },
-      FunctionExpression(path: any) {
+      FunctionExpression(path: NodePath) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
         }
       },
-      ArrowFunctionExpression(path: any) {
+      ArrowFunctionExpression(path: NodePath) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
         }
-      }
+      },
     });
-    
+
     return issues;
-  }
+  },
 };
 
-function checkComponent(path: any, filename: string, issues: Issue[]): void {
+function checkComponent(path: NodePath, filename: string, issues: Issue[]): void {
   const stateCalls = findUseStateCalls(path);
-  
+
   // Look for patterns that suggest computed state
   for (const state of stateCalls) {
     if (isLikelyComputedState(state, stateCalls)) {
       const location = getNodeLocation(state.node);
-      
+
       issues.push({
         rule: 'avoid-redundant-state',
         severity: 'warning',
@@ -53,126 +54,156 @@ function checkComponent(path: any, filename: string, issues: Issue[]): void {
         line: location.line,
         column: location.column,
         suggestion: `Consider computing this value during render instead of storing in state`,
-        fixable: true
+        fixable: true,
       });
     }
   }
-  
+
   // Check for state that's updated together with computed values
   checkForComputedUpdates(path, stateCalls, filename, issues);
 }
 
-function isLikelyComputedState(state: any, allStates: any[]): boolean {
+function isLikelyComputedState(
+  state: ReturnType<typeof findUseStateCalls>[0],
+  allStates: ReturnType<typeof findUseStateCalls>
+): boolean {
   const name = state.name.toLowerCase();
-  
+
   // Common computed state patterns
   const computedPatterns = [
-    'total', 'sum', 'count', 'length', 'size',
-    'full', 'empty', 'valid', 'invalid',
-    'enabled', 'disabled', 'visible', 'hidden',
-    'selected', 'checked', 'active',
-    'formatted', 'display', 'label',
-    'percent', 'progress', 'ratio',
-    'min', 'max', 'average', 'mean'
+    'total',
+    'sum',
+    'count',
+    'length',
+    'size',
+    'full',
+    'empty',
+    'valid',
+    'invalid',
+    'enabled',
+    'disabled',
+    'visible',
+    'hidden',
+    'selected',
+    'checked',
+    'active',
+    'formatted',
+    'display',
+    'label',
+    'percent',
+    'progress',
+    'ratio',
+    'min',
+    'max',
+    'average',
+    'mean',
   ];
-  
+
   // Check if name suggests computed value
-  const hasComputedPattern = computedPatterns.some(pattern => name.includes(pattern));
-  
+  const hasComputedPattern = computedPatterns.some((pattern) => name.includes(pattern));
+
   if (hasComputedPattern) {
     // Check if there are related states that this could be computed from
-    const potentialSources = allStates.filter(s => {
+    const potentialSources = allStates.filter((s) => {
       if (s === state) return false;
-      
+
       // Look for array states if this is a count/length
-      if (['count', 'length', 'size', 'total'].some(p => name.includes(p))) {
-        return t.isArrayExpression(s.initialValue) || name.includes('items') || name.includes('list');
+      if (['count', 'length', 'size', 'total'].some((p) => name.includes(p))) {
+        return (
+          t.isArrayExpression(s.initialValue) || name.includes('items') || name.includes('list')
+        );
       }
-      
+
       // Look for boolean sources for enabled/disabled, visible/hidden
-      if (['enabled', 'disabled', 'visible', 'hidden'].some(p => name.includes(p))) {
+      if (['enabled', 'disabled', 'visible', 'hidden'].some((p) => name.includes(p))) {
         return isBooleanState(s);
       }
-      
+
       return true;
     });
-    
+
     return potentialSources.length > 0;
   }
-  
+
   return false;
 }
 
-function checkForComputedUpdates(path: any, stateCalls: any[], filename: string, issues: Issue[]): void {
+function checkForComputedUpdates(
+  path: NodePath,
+  stateCalls: ReturnType<typeof findUseStateCalls>,
+  filename: string,
+  issues: Issue[]
+): void {
   // Look for patterns where multiple setState calls happen together
-  const setterNames = stateCalls.map(s => s.setterName);
-  
+  const setterNames = stateCalls.map((s) => s.setterName);
+
   path.traverse({
-    CallExpression(callPath: any) {
+    CallExpression(callPath: NodePath<t.CallExpression>) {
       const { node } = callPath;
-      
+
       // Check if it's a setter call
       if (t.isIdentifier(node.callee) && setterNames.includes(node.callee.name)) {
         // Look for sibling setter calls in the same block/function
         const parent = callPath.getFunctionParent();
         if (!parent) return;
-        
-        const siblingSetters: any[] = [];
-        
+
+        const siblingSetters: string[] = [];
+
         parent.traverse({
-          CallExpression(siblingPath: any) {
+          CallExpression(siblingPath: NodePath<t.CallExpression>) {
             if (siblingPath === callPath) return;
-            
+
             const siblingNode = siblingPath.node;
-            if (t.isIdentifier(siblingNode.callee) && setterNames.includes(siblingNode.callee.name)) {
-              siblingSetters.push({
-                name: siblingNode.callee.name,
-                node: siblingNode,
-                path: siblingPath
-              });
+            if (
+              t.isIdentifier(siblingNode.callee) &&
+              setterNames.includes(siblingNode.callee.name)
+            ) {
+              siblingSetters.push(siblingNode.callee.name);
             }
-          }
+          },
         });
-        
+
         // If multiple setters are called together, check if some might be computed
         if (siblingSetters.length > 0) {
-          analyzeRelatedSetters(callPath, siblingSetters, stateCalls, filename, issues);
+          analyzeRelatedSetters(node.callee.name, siblingSetters, stateCalls, filename, issues);
         }
       }
-    }
+    },
   });
 }
 
 function analyzeRelatedSetters(
-  mainSetter: any, 
-  siblingSetters: any[], 
-  stateCalls: any[], 
-  filename: string, 
-  issues: Issue[]
+  _mainSetter: string,
+  _siblingSetters: string[],
+  _stateCalls: ReturnType<typeof findUseStateCalls>,
+  _filename: string,
+  _issues: Issue[]
 ): void {
   // Common patterns of computed updates
-  const patterns = [
+  const _patterns = [
     {
       source: ['items', 'list', 'data'],
-      computed: ['count', 'length', 'total', 'size', 'empty']
+      computed: ['count', 'length', 'total', 'size', 'empty'],
     },
     {
       source: ['price', 'quantity', 'rate'],
-      computed: ['total', 'sum', 'amount']
+      computed: ['total', 'sum', 'amount'],
     },
     {
       source: ['selected', 'checked'],
-      computed: ['all', 'none', 'some']
-    }
+      computed: ['all', 'none', 'some'],
+    },
   ];
-  
-  // This is a simplified check - in a real implementation, 
+
+  // This is a simplified check - in a real implementation,
   // we'd do more sophisticated data flow analysis
 }
 
-function isBooleanState(state: any): boolean {
+function isBooleanState(state: ReturnType<typeof findUseStateCalls>[0]): boolean {
   const name = state.name.toLowerCase();
   const booleanPrefixes = ['is', 'has', 'should', 'can', 'will', 'did', 'does'];
-  return booleanPrefixes.some(prefix => name.startsWith(prefix)) || 
-         t.isBooleanLiteral(state.initialValue);
+  return (
+    booleanPrefixes.some((prefix) => name.startsWith(prefix)) ||
+    t.isBooleanLiteral(state.initialValue)
+  );
 }
