@@ -1,7 +1,7 @@
-# fix-react-state
+# react-state-patterns
 
-[![CI](https://github.com/kevinmaes/fix-react-state/actions/workflows/ci.yml/badge.svg)](https://github.com/kevinmaes/fix-react-state/actions/workflows/ci.yml)
-[![npm version](https://badge.fury.io/js/fix-react-state.svg)](https://www.npmjs.com/package/fix-react-state)
+[![CI](https://github.com/kevinmaes/react-state-patterns/actions/workflows/ci.yml/badge.svg)](https://github.com/kevinmaes/react-state-patterns/actions/workflows/ci.yml)
+[![npm version](https://badge.fury.io/js/react-state-patterns.svg)](https://www.npmjs.com/package/react-state-patterns)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A tool to analyze and fix React state management antipatterns.
@@ -9,30 +9,30 @@ A tool to analyze and fix React state management antipatterns.
 ## Installation
 
 ```bash
-npm install -D fix-react-state
+npm install -D react-state-patterns
 # or
-yarn add -D fix-react-state
+yarn add -D react-state-patterns
 # or
-pnpm add -D fix-react-state
+pnpm add -D react-state-patterns
 ```
 
 ## Usage
 
 ```bash
 # Analyze current directory
-npx fix-react-state
+npx react-state-patterns
 
 # Analyze specific directory
-npx fix-react-state ./src
+npx react-state-patterns ./src
 
 # Custom file pattern
-npx fix-react-state --pattern "**/*.{js,jsx,ts,tsx}"
+npx react-state-patterns --pattern "**/*.{js,jsx,ts,tsx}"
 
 # Output as JSON
-npx fix-react-state --format json
+npx react-state-patterns --format json
 
 # Strict mode (exit with error if issues found)
-npx fix-react-state --strict
+npx react-state-patterns --strict
 ```
 
 ## What it detects

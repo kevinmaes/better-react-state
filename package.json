@@ -1,5 +1,5 @@
 {
-  "name": "fix-react-state",
+  "name": "react-state-patterns",
   "version": "0.1.0",
   "description": "A tool to analyze and fix React state management antipatterns",
   "keywords": [
@@ -10,13 +10,13 @@
     "static-analysis",
     "typescript"
   ],
-  "homepage": "https://github.com/kevinmaes/fix-react-state",
+  "homepage": "https://github.com/kevinmaes/react-state-patterns",
   "bugs": {
-    "url": "https://github.com/kevinmaes/fix-react-state/issues"
+    "url": "https://github.com/kevinmaes/react-state-patterns/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kevinmaes/fix-react-state.git"
+    "url": "git+https://github.com/kevinmaes/react-state-patterns.git"
   },
   "license": "MIT",
   "author": "Kevin Maes",
@@ -30,7 +30,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "fix-react-state": "./dist/cli.js"
+    "react-state-patterns": "./dist/cli.js"
   },
   "files": [
     "dist",
@@ -72,5 +72,5 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@8.15.0"
+  "packageManager": "pnpm@10.15.0"
 }

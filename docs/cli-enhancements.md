@@ -75,10 +75,10 @@ Add @clack/prompts for a new `--interactive` flag:
 
 ```bash
 # Interactive mode
-fix-react-state --interactive
+react-state-patterns --interactive
 
 # Would show:
-┌  fix-react-state
+┌  react-state-patterns
 │
 ◆  What would you like to analyze?
 │  ● Current directory (.)

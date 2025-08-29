@@ -8,7 +8,7 @@ import type { AnalysisOptions } from './types.js';
 const program = new Command();
 
 program
-  .name('fix-react-state')
+  .name('react-state-patterns')
   .description('Analyze and fix React state management antipatterns')
   .version('0.1.0')
   .argument('[path]', 'Path to analyze', '.')
@@ -57,8 +57,8 @@ program
           kleur.bold(options.pattern)
         );
         console.log(kleur.gray('💡 Try adjusting your pattern or path. Examples:'));
-        console.log(kleur.gray('   fix-react-state src --pattern "**/*.{js,jsx,ts,tsx}"'));
-        console.log(kleur.gray('   fix-react-state . --pattern "components/**/*.tsx"'));
+        console.log(kleur.gray('   react-state-patterns src --pattern "**/*.{js,jsx,ts,tsx}"'));
+        console.log(kleur.gray('   react-state-patterns . --pattern "components/**/*.tsx"'));
         process.exit(0);
       }
 

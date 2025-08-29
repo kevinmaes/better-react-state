@@ -1,6 +1,6 @@
 # Todo App with React State Antipatterns
 
-This is an example React todo application that **intentionally** demonstrates common state management antipatterns. It's designed to be analyzed by the `fix-react-state` tool to identify and understand these issues.
+This is an example React todo application that **intentionally** demonstrates common state management antipatterns. It's designed to be analyzed by the `react-state-patterns` tool to identify and understand these issues.
 
 ## Running the Analysis
 
@@ -111,7 +111,7 @@ const [isActive, setIsActive] = useState(false);
 
 ## Expected Analysis Results
 
-When you run `fix-react-state` on this project, it should identify:
+When you run `react-state-patterns` on this project, it should identify:
 
 - ❌ Multiple instances of contradicting boolean states
 - ⚠️ Deeply nested state structures
