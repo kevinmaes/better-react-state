@@ -40,7 +40,7 @@ npx react-state-patterns --strict
 Analyzes React components for 6 common state management antipatterns:
 
 - **Group Related State** - Multiple `useState` calls that should be combined
-- **Avoid State Contradictions** - Boolean states that create impossible UI states  
+- **Avoid State Contradictions** - Boolean states that create impossible UI states
 - **Avoid Redundant State** - State that can be computed from existing state
 - **Avoid Deeply Nested State** - State objects nested more than 2 levels deep
 - **Avoid State Duplication** - Same data stored in multiple places
@@ -73,6 +73,17 @@ pnpm build
 # Run tests
 pnpm test
 ```
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
+
+- Development workflow
+- How to submit pull requests
+- Adding changesets for your changes
+- Code style guidelines
+
+All contributions must include a changeset - run `pnpm changeset` to add one.
 
 ## License
 
