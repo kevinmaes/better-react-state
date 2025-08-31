@@ -29,6 +29,9 @@ importers:
       '@changesets/cli':
         specifier: ^2.29.6
         version: 2.29.6(@types/node@20.19.11)
+      '@eslint/js':
+        specifier: ^9.34.0
+        version: 9.34.0
       '@types/babel__traverse':
         specifier: ^7.20.0
         version: 7.28.0
@@ -708,6 +711,13 @@ packages:
         integrity: sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==,
       }
     engines: { node: ^12.22.0 || ^14.17.0 || >=16.0.0 }
+
+  '@eslint/js@9.34.0':
+    resolution:
+      {
+        integrity: sha512-EoyvqQnBNsV1CWaEJ559rxXL4c8V92gxirbawSmVUOWXlsRxxQXl6LmCpdUblgxgSkDIqKnhzba2SjRTI/A5Rw==,
+      }
+    engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
 
   '@humanwhocodes/config-array@0.13.0':
     resolution:
@@ -3103,6 +3113,8 @@ snapshots:
       - supports-color
 
   '@eslint/js@8.57.1': {}
+
+  '@eslint/js@9.34.0': {}
 
   '@humanwhocodes/config-array@0.13.0':
     dependencies:
