@@ -58,7 +58,7 @@
     "@babel/traverse": "^7.24.0",
     "@babel/types": "^7.24.0",
     "commander": "^12.0.0",
-    "glob": "^10.3.0",
+    "glob": "^11.0.3",
     "kleur": "^4.1.5"
   },
   "devDependencies": {
