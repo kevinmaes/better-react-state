@@ -2,6 +2,8 @@
 
 This document outlines best practices for managing state in React applications. These patterns help prevent common bugs, improve performance, and make code more maintainable.
 
+> **Note**: The organization of common React state patterns in this document was inspired by the excellent blog post ["Structuring State in React: 5 Essential Patterns"](https://certificates.dev/blog/structuring-state-in-react-5-essential-patterns). While the patterns themselves are industry-standard React concepts, this document expands upon them with TypeScript examples, XState integration, and additional patterns discovered through practical experience.
+
 ## Core Philosophy
 
 ### 1. Explicit Over Implicit
@@ -18,62 +20,14 @@ Each piece of data should have one authoritative location. Derive everything els
 
 ## Table of Contents
 
-1. [Group Related State](#group-related-state)
-2. [Avoid State Contradictions](#avoid-state-contradictions)
-3. [Avoid Redundant State](#avoid-redundant-state)
-4. [Avoid State Duplication](#avoid-state-duplication)
-5. [Avoid Deeply Nested State](#avoid-deeply-nested-state)
-6. [Prefer Explicit State Transitions](#prefer-explicit-state-transitions)
+1. [Avoid State Contradictions](#avoid-state-contradictions)
+2. [Avoid Redundant State](#avoid-redundant-state)
+3. [Prefer Explicit State Transitions](#prefer-explicit-state-transitions)
+4. [Group Related State](#group-related-state)
+5. [Avoid State Duplication](#avoid-state-duplication)
+6. [Avoid Deeply Nested State](#avoid-deeply-nested-state)
 
-## 1. Group Related State
-
-### Problem
-
-Separate state variables for related data can lead to synchronization bugs and partial updates.
-
-### Solution
-
-Combine related state into a single object to ensure atomic updates.
-
-### Examples
-
-#### ❌ Bad: Separate state for related data
-
-```javascript
-function ShoppingCart() {
-  const [productId, setProductId] = useState(null);
-  const [quantity, setQuantity] = useState(1);
-  const [price, setPrice] = useState(0);
-
-  // Risk: Forgetting to update all related states together
-  const updateItem = (newProductId, newQuantity, newPrice) => {
-    setProductId(newProductId);
-    setQuantity(newQuantity);
-    // Oops! Forgot to update price
-  };
-}
-```
-
-#### ✅ Good: Grouped related state
-
-```javascript
-function ShoppingCart() {
-  const [cartItem, setCartItem] = useState({
-    productId: null,
-    quantity: 1,
-    price: 0,
-  });
-
-  // All related data updates together
-  const updateItem = (newItem) => {
-    setCartItem(newItem);
-  };
-}
-```
-
-**Note:** For complex related state with multiple update patterns, consider XState Store which enforces grouped state with explicit update events.
-
-## 2. Avoid State Contradictions
+## 1. Avoid State Contradictions
 
 ### Problem
 
@@ -145,7 +99,7 @@ const dataStore = createStore({
 // State transitions are explicit and type-safe
 ```
 
-## 3. Avoid Redundant State
+## 2. Avoid Redundant State
 
 ### Problem
 
@@ -162,15 +116,15 @@ Calculate derived values during render instead of storing them in state.
 ```javascript
 function ShoppingCart() {
   const [items, setItems] = useState([]);
-  const [totalPrice, setTotalPrice] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
   const [itemCount, setItemCount] = useState(0);
 
-  // Must remember to update totalPrice and itemCount
+  // Must remember to update totalCost and itemCount
   // whenever items change
   const addItem = (item) => {
     const newItems = [...items, item];
     setItems(newItems);
-    setTotalPrice(calculateTotal(newItems)); // Easy to forget
+    setTotalCost(calculateTotal(newItems)); // Easy to forget
     setItemCount(newItems.length); // Easy to forget
   };
 }
@@ -183,7 +137,7 @@ function ShoppingCart() {
   const [items, setItems] = useState([]);
 
   // Computed on every render - always in sync
-  const totalPrice = items.reduce((sum, item) => sum + item.price, 0);
+  const totalCost = items.reduce((sum, item) => sum + item.unitCost, 0);
   const itemCount = items.length;
 
   const addItem = (item) => {
@@ -193,145 +147,7 @@ function ShoppingCart() {
 }
 ```
 
-## 4. Avoid State Duplication
-
-### Problem
-
-Storing the same data in multiple places causes consistency problems.
-
-### Solution
-
-Use a single source of truth and reference it where needed.
-
-### Examples
-
-#### ❌ Bad: Duplicating data
-
-```javascript
-function TodoList() {
-  const [todos, setTodos] = useState([{ id: 1, text: 'Learn React', completed: false }]);
-
-  // Duplicating the entire todo object
-  const [editingTodo, setEditingTodo] = useState({
-    id: 1,
-    text: 'Learn React',
-    completed: false,
-  });
-
-  // Risk: editingTodo can get out of sync with todos array
-}
-```
-
-#### ✅ Good: Single source of truth
-
-```javascript
-function TodoList() {
-  const [todos, setTodos] = useState([{ id: 1, text: 'Learn React', completed: false }]);
-
-  // Only store the reference (ID)
-  const [editingTodoId, setEditingTodoId] = useState(null);
-
-  // Derive the actual todo from the source of truth
-  const editingTodo = todos.find((todo) => todo.id === editingTodoId);
-}
-```
-
-## 5. Avoid Deeply Nested State
-
-### Problem
-
-Deeply nested state objects are difficult to update immutably and prone to bugs.
-
-### Solution
-
-Flatten state structure or normalize complex data.
-
-### Examples
-
-#### ❌ Bad: Deeply nested state
-
-```javascript
-function UserProfile() {
-  const [user, setUser] = useState({
-    profile: {
-      details: {
-        address: {
-          street: '123 Main St',
-          city: 'Boston',
-        },
-      },
-    },
-  });
-
-  // Complex update for nested property
-  const updateCity = (newCity) => {
-    setUser({
-      ...user,
-      profile: {
-        ...user.profile,
-        details: {
-          ...user.profile.details,
-          address: {
-            ...user.profile.details.address,
-            city: newCity,
-          },
-        },
-      },
-    });
-  };
-}
-```
-
-#### ✅ Good: Flattened state
-
-```javascript
-function UserProfile() {
-  const [userProfile, setUserProfile] = useState({
-    street: '123 Main St',
-    city: 'Boston',
-  });
-
-  // Simple update
-  const updateCity = (newCity) => {
-    setUserProfile({
-      ...userProfile,
-      city: newCity,
-    });
-  };
-}
-```
-
-#### ✅ Alternative: Normalized state
-
-```javascript
-function App() {
-  // Normalized data structure
-  const [entities, setEntities] = useState({
-    users: {
-      1: { id: 1, name: 'John', addressId: 'addr1' },
-    },
-    addresses: {
-      addr1: { id: 'addr1', street: '123 Main St', city: 'Boston' },
-    },
-  });
-
-  // Simple updates to specific entities
-  const updateCity = (addressId, newCity) => {
-    setEntities((prev) => ({
-      ...prev,
-      addresses: {
-        ...prev.addresses,
-        [addressId]: {
-          ...prev.addresses[addressId],
-          city: newCity,
-        },
-      },
-    }));
-  };
-}
-```
-
-## 6. Prefer Explicit State Transitions
+## 3. Prefer Explicit State Transitions
 
 ### Problem
 
@@ -529,6 +345,192 @@ Benefits over useReducer:
 - Built-in React integration with `useSelector`
 - Global and local state support
 - Side effects handling built-in
+
+## 4. Group Related State
+
+### Problem
+
+Separate state variables for related data can lead to synchronization bugs and partial updates.
+
+### Solution
+
+Combine related state into a single object to ensure atomic updates.
+
+### Examples
+
+#### ❌ Bad: Separate state for related data
+
+```javascript
+function ShoppingCart() {
+  const [itemId, setItemId] = useState(null);
+  const [amount, setAmount] = useState(1);
+  const [unitCost, setUnitCost] = useState(0);
+
+  // Risk: Forgetting to update all related states together
+  const updateItem = (newItemId, newAmount, newUnitCost) => {
+    setItemId(newItemId);
+    setAmount(newAmount);
+    // Oops! Forgot to update unitCost
+  };
+}
+```
+
+#### ✅ Good: Grouped related state
+
+```javascript
+function ShoppingCart() {
+  const [cartItem, setCartItem] = useState({
+    itemId: null,
+    amount: 1,
+    unitCost: 0,
+  });
+
+  // All related data updates together
+  const updateItem = (newItem) => {
+    setCartItem(newItem);
+  };
+}
+```
+
+**Note:** For complex related state with multiple update patterns, consider XState Store which enforces grouped state with explicit update events.
+
+## 5. Avoid State Duplication
+
+### Problem
+
+Storing the same data in multiple places causes consistency problems.
+
+### Solution
+
+Use a single source of truth and reference it where needed.
+
+### Examples
+
+#### ❌ Bad: Duplicating data
+
+```javascript
+function TodoList() {
+  const [todos, setTodos] = useState([{ id: 1, text: 'Write unit tests', completed: false }]);
+
+  // Duplicating the entire todo object
+  const [editingTodo, setEditingTodo] = useState({
+    id: 1,
+    text: 'Write unit tests',
+    completed: false,
+  });
+
+  // Risk: editingTodo can get out of sync with todos array
+}
+```
+
+#### ✅ Good: Single source of truth
+
+```javascript
+function TodoList() {
+  const [todos, setTodos] = useState([{ id: 1, text: 'Write unit tests', completed: false }]);
+
+  // Only store the reference (ID)
+  const [editingTodoId, setEditingTodoId] = useState(null);
+
+  // Derive the actual todo from the source of truth
+  const editingTodo = todos.find((todo) => todo.id === editingTodoId);
+}
+```
+
+## 6. Avoid Deeply Nested State
+
+### Problem
+
+Deeply nested state objects are difficult to update immutably and prone to bugs.
+
+### Solution
+
+Flatten state structure or normalize complex data.
+
+### Examples
+
+#### ❌ Bad: Deeply nested state
+
+```javascript
+function UserProfile() {
+  const [user, setUser] = useState({
+    profile: {
+      details: {
+        address: {
+          street: '123 Main St',
+          city: 'Boston',
+        },
+      },
+    },
+  });
+
+  // Complex update for nested property
+  const updateCity = (newCity) => {
+    setUser({
+      ...user,
+      profile: {
+        ...user.profile,
+        details: {
+          ...user.profile.details,
+          address: {
+            ...user.profile.details.address,
+            city: newCity,
+          },
+        },
+      },
+    });
+  };
+}
+```
+
+#### ✅ Good: Flattened state
+
+```javascript
+function UserProfile() {
+  const [userProfile, setUserProfile] = useState({
+    street: '123 Main St',
+    city: 'Boston',
+  });
+
+  // Simple update
+  const updateCity = (newCity) => {
+    setUserProfile({
+      ...userProfile,
+      city: newCity,
+    });
+  };
+}
+```
+
+#### ✅ Alternative: Normalized state
+
+```javascript
+function App() {
+  // Normalized data structure
+  const [entities, setEntities] = useState({
+    users: {
+      1: { id: 1, name: 'John', addressId: 'addr1' },
+    },
+    addresses: {
+      addr1: { id: 'addr1', street: '123 Main St', city: 'Boston' },
+    },
+  });
+
+  // Simple updates to specific entities
+  const updateCity = (addressId, newCity) => {
+    setEntities((prev) => ({
+      ...prev,
+      addresses: {
+        ...prev.addresses,
+        [addressId]: {
+          ...prev.addresses[addressId],
+          city: newCity,
+        },
+      },
+    }));
+  };
+}
+```
 
 ## Additional Best Practices
 
