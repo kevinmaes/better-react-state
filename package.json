@@ -49,14 +49,15 @@
     "typecheck": "tsc --noEmit",
     "test:examples": "npm run build && node dist/cli.js examples/**/src --format text",
     "test:todo-app": "npm run build && node dist/cli.js examples/todo-app-antipatterns/src --format text",
+    "checks": "npm run lint && npm run typecheck && npm run test:coverage",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "pnpm build && changeset publish"
   },
   "dependencies": {
-    "@babel/parser": "^7.24.0",
-    "@babel/traverse": "^7.24.0",
-    "@babel/types": "^7.24.0",
+    "@babel/parser": "^7.28.3",
+    "@babel/traverse": "^7.28.3",
+    "@babel/types": "^7.28.2",
     "commander": "^12.0.0",
     "glob": "^10.3.0",
     "kleur": "^4.1.5"
