@@ -1,6 +1,6 @@
 {
-  "name": "react-state-patterns",
-  "version": "0.1.0",
+  "name": "better-react-state",
+  "version": "0.2.0",
   "description": "A tool to analyze and fix React state management antipatterns",
   "keywords": [
     "react",
@@ -10,13 +10,13 @@
     "static-analysis",
     "typescript"
   ],
-  "homepage": "https://github.com/kevinmaes/react-state-patterns",
+  "homepage": "https://github.com/kevinmaes/better-react-state",
   "bugs": {
-    "url": "https://github.com/kevinmaes/react-state-patterns/issues"
+    "url": "https://github.com/kevinmaes/better-react-state/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kevinmaes/react-state-patterns.git"
+    "url": "git+https://github.com/kevinmaes/better-react-state.git"
   },
   "license": "MIT",
   "author": "Kevin Maes",
@@ -30,7 +30,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "react-state-patterns": "./dist/cli.js"
+    "better-react-state": "./dist/cli.js"
   },
   "files": [
     "dist",
@@ -49,31 +49,32 @@
     "typecheck": "tsc --noEmit",
     "test:examples": "npm run build && node dist/cli.js examples/**/src --format text",
     "test:todo-app": "npm run build && node dist/cli.js examples/todo-app-antipatterns/src --format text",
+    "checks": "npm run lint && npm run typecheck && npm run test:coverage",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "pnpm build && changeset publish"
   },
   "dependencies": {
-    "@babel/parser": "^7.24.0",
-    "@babel/traverse": "^7.24.0",
-    "@babel/types": "^7.24.0",
-    "commander": "^12.0.0",
-    "glob": "^10.3.0",
+    "@babel/parser": "^7.28.3",
+    "@babel/traverse": "^7.28.3",
+    "@babel/types": "^7.28.2",
+    "commander": "^13.1.0",
+    "glob": "^11.0.3",
     "kleur": "^4.1.5"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.6",
     "@eslint/js": "^9.34.0",
-    "@types/babel__traverse": "^7.20.0",
-    "@types/node": "^20.11.0",
-    "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^7.0.0",
-    "@vitest/coverage-v8": "^1.6.1",
-    "eslint": "^8.56.0",
-    "prettier": "^3.2.0",
-    "tsx": "^4.7.0",
-    "typescript": "^5.3.0",
-    "vitest": "^1.2.0"
+    "@types/babel__traverse": "^7.28.0",
+    "@types/node": "^24.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.41.0",
+    "@typescript-eslint/parser": "^8.41.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "eslint": "^9.34.0",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
   },
   "engines": {
     "node": ">=18.0.0"

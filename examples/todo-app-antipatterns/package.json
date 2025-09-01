@@ -1,7 +1,7 @@
 {
   "name": "todo-app-antipatterns",
   "version": "1.0.0",
-  "description": "A todo app with intentional React state management antipatterns for testing react-state-patterns",
+  "description": "A todo app with intentional React state management antipatterns for testing better-react-state",
   "private": true,
   "scripts": {
     "analyze": "../../dist/cli.js src --format text"
