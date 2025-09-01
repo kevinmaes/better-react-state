@@ -41,6 +41,7 @@ export default [
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
         },
       ],
       'no-unused-vars': 'off',
@@ -54,6 +55,7 @@ export default [
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_|^React$',
+          caughtErrorsIgnorePattern: '^_',
         },
       ],
     },

@@ -21,7 +21,7 @@ async function detectProjectContext(projectPath: string): Promise<ProjectContext
       hasXStateStore: '@xstate/store' in allDeps,
       xstateVersion: allDeps['xstate'] || allDeps['@xstate/react'],
     };
-  } catch (error) {
+  } catch (_error) {
     // No package.json or error reading it
     return {
       hasXState: false,
