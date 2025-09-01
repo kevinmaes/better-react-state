@@ -1,7 +1,7 @@
-# react-state-patterns
+# better-react-state
 
-[![CI](https://github.com/kevinmaes/react-state-patterns/actions/workflows/ci.yml/badge.svg)](https://github.com/kevinmaes/react-state-patterns/actions/workflows/ci.yml)
-[![npm version](https://badge.fury.io/js/react-state-patterns.svg)](https://www.npmjs.com/package/react-state-patterns)
+[![CI](https://github.com/kevinmaes/better-react-state/actions/workflows/ci.yml/badge.svg)](https://github.com/kevinmaes/better-react-state/actions/workflows/ci.yml)
+[![npm version](https://badge.fury.io/js/better-react-state.svg)](https://www.npmjs.com/package/better-react-state)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A tool to analyze and fix React state management antipatterns.
@@ -9,30 +9,30 @@ A tool to analyze and fix React state management antipatterns.
 ## Installation
 
 ```bash
-npm install -D react-state-patterns
+npm install -D better-react-state
 # or
-yarn add -D react-state-patterns
+yarn add -D better-react-state
 # or
-pnpm add -D react-state-patterns
+pnpm add -D better-react-state
 ```
 
 ## Usage
 
 ```bash
 # Analyze current directory
-npx react-state-patterns
+npx better-react-state
 
 # Analyze specific directory
-npx react-state-patterns ./src
+npx better-react-state ./src
 
 # Custom file pattern
-npx react-state-patterns --pattern "**/*.{js,jsx,ts,tsx}"
+npx better-react-state --pattern "**/*.{js,jsx,ts,tsx}"
 
 # Output as JSON
-npx react-state-patterns --format json
+npx better-react-state --format json
 
 # Strict mode (exit with error if issues found)
-npx react-state-patterns --strict
+npx better-react-state --strict
 ```
 
 ## What it detects
