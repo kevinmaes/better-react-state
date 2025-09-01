@@ -1,4 +1,4 @@
-# React State Patterns - Examples
+# Better React State - Examples
 
 This directory contains example React applications with intentional state management antipatterns for testing and learning.
 
@@ -44,8 +44,8 @@ node dist/cli.js examples/todo-app-antipatterns/src --format markdown > report.m
 npm link
 
 # Then use anywhere
-npx react-state-patterns examples/todo-app-antipatterns/src
-react-state-patterns examples/todo-app-antipatterns/src --format text
+npx better-react-state examples/todo-app-antipatterns/src
+better-react-state examples/todo-app-antipatterns/src --format text
 ```
 
 ## Available Examples
@@ -71,7 +71,7 @@ react-state-patterns examples/todo-app-antipatterns/src --format text
 ## CLI Options
 
 ```bash
-react-state-patterns [path] [options]
+better-react-state [path] [options]
 
 Options:
   -V, --version          output the version number
@@ -154,7 +154,7 @@ node dist/cli.js test-component.tsx
 
 ## Tips
 
-1. **Pipe to less for long output**: `react-state-patterns src | less`
-2. **Save JSON for processing**: `react-state-patterns src -f json > report.json`
-3. **Use in CI**: `react-state-patterns src --strict` (exits with code 1 if issues found)
-4. **Filter specific rules**: Use grep, e.g., `react-state-patterns src | grep "group-related"`
+1. **Pipe to less for long output**: `better-react-state src | less`
+2. **Save JSON for processing**: `better-react-state src -f json > report.json`
+3. **Use in CI**: `better-react-state src --strict` (exits with code 1 if issues found)
+4. **Filter specific rules**: Use grep, e.g., `better-react-state src | grep "group-related"`
