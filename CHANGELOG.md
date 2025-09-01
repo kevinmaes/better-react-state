@@ -1,4 +1,4 @@
-# react-state-patterns
+# better-react-state
 
 ## 0.2.0
 
