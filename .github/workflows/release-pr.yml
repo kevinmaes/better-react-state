@@ -36,10 +36,18 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Create Release Pull Request
+        id: changesets
         uses: changesets/action@v1
         with:
           title: 'Release: Version Packages'
           commit: 'chore: version packages'
           createGithubReleases: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Update PR Base Branch
+        if: ${{ steps.changesets.outputs.pullRequestNumber }}
+        run: |
+          gh pr edit ${{ steps.changesets.outputs.pullRequestNumber }} --base main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
