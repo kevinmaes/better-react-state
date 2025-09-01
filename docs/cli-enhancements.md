@@ -62,7 +62,7 @@ Keep current setup but improve output:
 
 ```typescript
 // Better formatted output with chalk
-console.log(chalk.bold('🔍 Analyzing React state patterns...'));
+console.log(chalk.bold('🔍 Analyzing code for better React state patterns...'));
 console.log(chalk.dim(`Found ${files.length} files to analyze`));
 
 // Progress indication
@@ -75,10 +75,10 @@ Add @clack/prompts for a new `--interactive` flag:
 
 ```bash
 # Interactive mode
-fix-react-state --interactive
+better-react-state --interactive
 
 # Would show:
-┌  fix-react-state
+┌  better-react-state
 │
 ◆  What would you like to analyze?
 │  ● Current directory (.)

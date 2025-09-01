@@ -1,4 +1,4 @@
-# XState Integration Assessment for fix-react-state
+# XState Integration Assessment for better-react-state
 
 ## Current State Analysis
 

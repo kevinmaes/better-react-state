@@ -2,7 +2,7 @@
 
 ## Overview
 
-Enhance fix-react-state to detect existing XState usage and provide context-aware suggestions.
+Enhance better-react-state to detect existing XState usage and provide context-aware suggestions.
 
 ## Detection Strategy
 

@@ -195,7 +195,7 @@ Create a powerful static analysis tool that helps React developers identify and 
 
 ## Long-term Vision
 
-Eventually, fix-react-state could become:
+Eventually, better-react-state could become:
 
 - The standard tool for React state management linting
 - Integrated into create-react-app and other bootstrapping tools
