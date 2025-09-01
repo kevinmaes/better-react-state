@@ -2,4 +2,4 @@
 'better-react-state': patch
 ---
 
-Update dependencies
+Delete Klaur md file

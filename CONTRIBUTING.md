@@ -1,6 +1,6 @@
-# Contributing to React State Patterns
+# Contributing to Better React State
 
-Thank you for your interest in contributing to React State Patterns! This guide will help you get started with contributing to the project.
+Thank you for your interest in contributing to Better React State! This guide will help you get started with contributing to the project.
 
 ## Development Workflow
 
@@ -13,7 +13,7 @@ This project uses a structured release workflow:
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/your-username/react-state-patterns.git`
+2. Clone your fork: `git clone https://github.com/your-username/better-react-state.git`
 3. Install dependencies: `pnpm install`
 4. Create a feature branch from `dev`: `git checkout -b feature/your-feature dev`
 
@@ -72,7 +72,7 @@ This will prompt you to:
 
 ```markdown
 ---
-'react-state-patterns': minor
+'better-react-state': minor
 ---
 
 Add support for detecting XState patterns in React components

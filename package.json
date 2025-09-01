@@ -1,6 +1,6 @@
 {
-  "name": "react-state-patterns",
-  "version": "0.1.0",
+  "name": "better-react-state",
+  "version": "0.2.0",
   "description": "A tool to analyze and fix React state management antipatterns",
   "keywords": [
     "react",
@@ -10,13 +10,13 @@
     "static-analysis",
     "typescript"
   ],
-  "homepage": "https://github.com/kevinmaes/react-state-patterns",
+  "homepage": "https://github.com/kevinmaes/better-react-state",
   "bugs": {
-    "url": "https://github.com/kevinmaes/react-state-patterns/issues"
+    "url": "https://github.com/kevinmaes/better-react-state/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kevinmaes/react-state-patterns.git"
+    "url": "git+https://github.com/kevinmaes/better-react-state.git"
   },
   "license": "MIT",
   "author": "Kevin Maes",
@@ -30,7 +30,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "react-state-patterns": "./dist/cli.js"
+    "better-react-state": "./dist/cli.js"
   },
   "files": [
     "dist",

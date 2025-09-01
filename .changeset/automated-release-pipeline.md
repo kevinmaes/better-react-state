@@ -1,5 +1,5 @@
 ---
-'react-state-patterns': minor
+'better-react-state': minor
 ---
 
 Setup automated NPM release pipeline with Changesets

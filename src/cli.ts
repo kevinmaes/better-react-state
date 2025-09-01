@@ -8,7 +8,7 @@ import type { AnalysisOptions } from './types.js';
 const program = new Command();
 
 program
-  .name('react-state-patterns')
+  .name('better-react-state')
   .description('Analyze and fix React state management antipatterns')
   .version('0.1.0')
   .argument('[path]', 'Path to analyze', '.')
@@ -19,7 +19,7 @@ program
   .option('--strict', 'Exit with error code if issues found', false)
   .option('-v, --verbose', 'Show detailed analysis information', false)
   .action(async (path: string, options: AnalysisOptions) => {
-    console.log(kleur.blue().bold('🔍 Analyzing React state patterns...\n'));
+    console.log(kleur.blue().bold('🔍 Analyzing code for better React state patterns...\n'));
 
     try {
       const results = await analyzer.analyze(path, options);
@@ -57,8 +57,8 @@ program
           kleur.bold(options.pattern)
         );
         console.log(kleur.gray('💡 Try adjusting your pattern or path. Examples:'));
-        console.log(kleur.gray('   react-state-patterns src --pattern "**/*.{js,jsx,ts,tsx}"'));
-        console.log(kleur.gray('   react-state-patterns . --pattern "components/**/*.tsx"'));
+        console.log(kleur.gray('   better-react-state src --pattern "**/*.{js,jsx,ts,tsx}"'));
+        console.log(kleur.gray('   better-react-state . --pattern "components/**/*.tsx"'));
         process.exit(0);
       }
 
