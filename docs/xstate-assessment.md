@@ -1,4 +1,4 @@
-# XState Integration Assessment for react-state-patterns
+# XState Integration Assessment for better-react-state
 
 ## Current State Analysis
 

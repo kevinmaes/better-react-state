@@ -1,5 +1,5 @@
 ---
-'react-state-patterns': patch
+'better-react-state': patch
 ---
 
 Update dependencies
