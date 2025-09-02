@@ -39,14 +39,14 @@ npx better-react-state --strict
 
 Analyzes React components for 6 common state management antipatterns:
 
-- **Group Related State** - Multiple `useState` calls that should be combined
 - **Avoid State Contradictions** - Boolean states that create impossible UI states
 - **Avoid Redundant State** - State that can be computed from existing state
-- **Avoid Deeply Nested State** - State objects nested more than 2 levels deep
+- **Group Related State** - Multiple `useState` calls that should be combined
 - **Avoid State Duplication** - Same data stored in multiple places
 - **Prefer Explicit Transitions** - Implicit state changes that need reducer patterns
+- **Avoid Deeply Nested State** - State objects nested more than 2 levels deep
 
-See [docs/best-practices.md](docs/best-practices.md) for detailed examples and explanations.
+Each rule includes intelligent suggestions and considers whether XState is available in your project for enhanced recommendations.
 
 ## Philosophy
 
@@ -57,6 +57,11 @@ This tool promotes:
 - **Single source of truth** for data
 
 See [docs/best-practices.md](docs/best-practices.md) for detailed explanations.
+
+## Documentation
+
+- [Best Practices Guide](docs/best-practices.md) - Detailed explanations of each pattern with examples
+- [Roadmap](docs/roadmap.md) - Current rules, planned features, and future ESLint plugin development
 
 ## Development
 
