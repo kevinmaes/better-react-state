@@ -1,6 +1,6 @@
 {
   "name": "better-react-state",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "A tool to analyze and fix React state management antipatterns",
   "keywords": [
     "react",
