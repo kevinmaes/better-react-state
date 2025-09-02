@@ -51,34 +51,34 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      
+
       - name: Merge main back to dev
         if: steps.changesets.outputs.published == 'true'
         run: |
           # Configure git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           # Fetch and checkout dev branch
           git fetch origin dev
           git checkout dev
-          
+
           # Merge main into dev
           git merge origin/main -m "chore: sync version from main to dev after release"
-          
+
           # Clean up consumed changesets that don't exist on main
           # Pattern matches: word-word-word.md (e.g., quiet-beds-tell.md)
           # Excludes: README.md, config.json, and other documentation
           find .changeset -type f -name "*.md" \
             -regex ".*/[a-z]+-[a-z]+-[a-z]+\.md$" \
             -delete
-          
+
           # Commit the cleanup if any files were deleted
           if [ -n "$(git status --porcelain .changeset)" ]; then
             git add .changeset
             git commit -m "chore: clean consumed changesets after release sync"
           fi
-          
+
           # Push the merge back to dev
           git push origin dev
         env:
