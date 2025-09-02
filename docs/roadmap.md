@@ -1,4 +1,8 @@
-# Better React State - Rules Roadmap
+# Better React State - Project Roadmap
+
+## Project Vision
+
+Create a powerful static analysis tool that helps React developers identify and fix state management antipatterns, promoting best practices and improving code quality.
 
 This document tracks all implemented and planned rules for the better-react-state analyzer. It serves as both a historical record and a planning tool for future development.
 
@@ -29,13 +33,13 @@ These rules are under consideration for future implementation (sorted by priorit
 
 | Rule                        | Description                                                          | Commonality | Priority | ESLint Coverage                            | Notes                                             |
 | --------------------------- | -------------------------------------------------------------------- | ----------- | -------- | ------------------------------------------ | ------------------------------------------------- |
-| **Detect Prop Drilling**    | Identifies props passed through 2+ intermediate components unchanged | 5           | 5        | ❌ None                                    | Clear antipattern, suggest Context or composition |
-| **State in useEffect**      | Detects setState calls in useEffect that indicate derived state      | 4           | 4        | ⚠️ `react-hooks/exhaustive-deps` (partial) | Often misunderstood, causes unnecessary renders   |
-| **Server vs Client State**  | Identifies API data in useState instead of React Query/SWR           | 4           | 4        | ❌ None                                    | Major architectural improvement opportunity       |
-| **State vs Refs**           | Detects state that doesn't affect render (should be refs)            | 3           | 3        | ❌ None                                    | Performance optimization                          |
-| **Form State Patterns**     | Suggests form libraries or unified state for multi-field forms       | 5           | 3        | ❌ None                                    | Very common but lower impact                      |
-| **State Machine Detection** | Enhanced version of "avoid contradictions" suggesting full FSM       | 3           | 3        | ❌ None                                    | High impact but requires deeper analysis          |
-| **Global State Overuse**    | Context at root with state only used in subtrees                     | 3           | 3        | ❌ None                                    | Performance impact, architectural issue           |
+| **Detect Prop Drilling**    | Identifies props passed through 2+ intermediate components unchanged | 5           | 5        | ❌ None                                    | Clear antipattern, suggest Context or composition [#38](https://github.com/kevinmaes/better-react-state/issues/38) |
+| **State in useEffect**      | Detects setState calls in useEffect that indicate derived state      | 4           | 4        | ⚠️ `react-hooks/exhaustive-deps` (partial) | Often misunderstood, causes unnecessary renders [#39](https://github.com/kevinmaes/better-react-state/issues/39) |
+| **Server vs Client State**  | Identifies API data in useState instead of React Query/SWR           | 4           | 4        | ❌ None                                    | Major architectural improvement opportunity [#40](https://github.com/kevinmaes/better-react-state/issues/40) |
+| **State vs Refs**           | Detects state that doesn't affect render (should be refs)            | 3           | 3        | ❌ None                                    | Performance optimization [#41](https://github.com/kevinmaes/better-react-state/issues/41) |
+| **Form State Patterns**     | Suggests form libraries or unified state for multi-field forms       | 5           | 3        | ❌ None                                    | Very common but lower impact [#42](https://github.com/kevinmaes/better-react-state/issues/42) |
+| **State Machine Detection** | Enhanced version of "avoid contradictions" suggesting full FSM       | 3           | 3        | ❌ None                                    | High impact but requires deeper analysis [#43](https://github.com/kevinmaes/better-react-state/issues/43) |
+| **Global State Overuse**    | Context at root with state only used in subtrees                     | 3           | 3        | ❌ None                                    | Performance impact, architectural issue [#44](https://github.com/kevinmaes/better-react-state/issues/44) |
 
 ## Implementation Strategy
 
@@ -138,18 +142,104 @@ When proposing new rules, consider:
 4. Can we provide actionable fix suggestions?
 5. Will it have too many false positives?
 
+## Current Status (as of August 2024)
+
+### ✅ Completed
+
+- Core infrastructure setup
+  - TypeScript configuration
+  - CLI with commander.js
+  - AST parsing with Babel
+  - Testing with Vitest
+  - ESLint and Prettier configuration
+- Rule Implementation (6/6) ✅
+  - Group Related State - Detects multiple useState calls that should be combined
+  - Avoid State Contradictions - Identifies boolean states that can conflict
+  - Avoid Redundant State - Finds state that can be computed
+  - Avoid Deeply Nested State - Detects state nested more than 2-3 levels deep
+  - Avoid State Duplication - Detects state that duplicates props or other state
+  - Prefer Explicit State Transitions - Suggests useReducer for complex multi-state updates
+- Output Formats
+  - Text output with colors
+  - JSON output for programmatic use
+  - Markdown output for reports
+- Test Coverage
+  - Unit tests for all implemented rules
+  - Test fixtures with good/bad examples
+
+## Roadmap Phases
+
+### Phase 0: Complete Core Features (High Priority)
+
+**Example Applications** ([#36](https://github.com/kevinmaes/better-react-state/issues/36))
+
+- [ ] Create `examples/` directory
+- [ ] Create todo app with antipatterns
+- [ ] Create shopping cart example
+- [ ] Create complex form example
+- [ ] Add README for each example
+- [ ] Add npm scripts to test examples
+
+**Testing on Real Projects** ([#37](https://github.com/kevinmaes/better-react-state/issues/37))
+
+- [ ] Test on popular React repos
+- [ ] Document findings
+- [ ] Create issue templates for feedback
+
+**Auto-fix Functionality** ([#2](https://github.com/kevinmaes/better-react-state/issues/2))
+
+- [ ] Add `--fix` flag implementation
+- [ ] Implement fix for group-related-state
+- [ ] Implement fix for avoid-contradictions
+- [ ] Implement fix for avoid-redundant-state
+- [ ] Add dry-run mode
+- [ ] Add interactive fix mode
+
+## Technical Decisions
+
+### Why These Technologies?
+
+- **Babel**: Most robust JavaScript/TypeScript parser
+- **Commander**: Simple, well-documented CLI framework
+- **Vitest**: Fast, modern test runner with great DX
+- **TypeScript**: Type safety for better rule accuracy
+
+### Rule Philosophy
+
+1. **No false positives**: Better to miss issues than flag correct code
+2. **Actionable feedback**: Every issue should have a clear fix
+3. **Educational**: Help developers understand the "why"
+4. **Incremental adoption**: Work on any codebase, any size
+
+## Long-term Vision
+
+Eventually, better-react-state could become:
+
+- The standard tool for React state management linting
+- Integrated into create-react-app and other bootstrapping tools
+- A learning resource for React best practices
+- Part of the broader React ecosystem toolchain
+
+## Related Resources
+
+- [Best Practices Documentation](best-practices.md)
+- [Blog Post: Structuring State in React](https://certificates.dev/blog/structuring-state-in-react-5-essential-patterns)
+- [React Documentation on State](https://react.dev/learn/managing-state)
+
 ## Changelog
+
+### 2024-08
+
+- All 6 core rules implemented
+- XState detection added
+- JSON and Markdown output formats
+- Test coverage for all rules
 
 ### 2024-01
 
-- Initial 6 rules implemented
-- XState detection added
-- JSON and Markdown output formats
-
-### Future
-
-- See planned rules above
+- Initial project setup
+- Core infrastructure implementation
 
 ---
 
-_Last updated: 2024-01_
+_Last updated: 2024-08_
