@@ -1,5 +1,12 @@
 # better-react-state
 
+## 0.4.1
+
+### Patch Changes
+
+- d02ce88: Only run tests when pushing or merging into the dev branch and not the main branch
+- 6be156d: Add automatic cleanup of consumed changesets after release sync to prevent version bump issues
+
 ## 0.4.0
 
 ### Minor Changes
