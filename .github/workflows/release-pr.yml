@@ -44,10 +44,3 @@ jobs:
           createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Update PR Base Branch
-        if: ${{ steps.changesets.outputs.pullRequestNumber }}
-        run: |
-          gh pr edit ${{ steps.changesets.outputs.pullRequestNumber }} --base main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
