@@ -1,6 +1,6 @@
 {
   "name": "better-react-state",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A tool to analyze and fix React state management antipatterns",
   "keywords": [
     "react",
@@ -58,7 +58,7 @@
     "@babel/parser": "^7.28.3",
     "@babel/traverse": "^7.28.3",
     "@babel/types": "^7.28.2",
-    "commander": "^13.1.0",
+    "commander": "^14.0.0",
     "glob": "^11.0.3",
     "kleur": "^4.1.5"
   },
