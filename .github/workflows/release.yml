@@ -66,6 +66,19 @@ jobs:
           # Merge main into dev
           git merge origin/main -m "chore: sync version from main to dev after release"
           
+          # Clean up consumed changesets that don't exist on main
+          # Pattern matches: word-word-word.md (e.g., quiet-beds-tell.md)
+          # Excludes: README.md, config.json, and other documentation
+          find .changeset -type f -name "*.md" \
+            -regex ".*/[a-z]+-[a-z]+-[a-z]+\.md$" \
+            -delete
+          
+          # Commit the cleanup if any files were deleted
+          if [ -n "$(git status --porcelain .changeset)" ]; then
+            git add .changeset
+            git commit -m "chore: clean consumed changesets after release sync"
+          fi
+          
           # Push the merge back to dev
           git push origin dev
         env:
