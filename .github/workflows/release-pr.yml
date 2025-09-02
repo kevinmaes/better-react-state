@@ -42,5 +42,6 @@ jobs:
           title: 'Release: Version Packages'
           commit: 'chore: version packages'
           createGithubReleases: false
+          branch: main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
