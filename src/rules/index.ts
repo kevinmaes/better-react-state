@@ -5,6 +5,7 @@ import { avoidRedundantStateRule } from './avoid-redundant-state.js';
 import { avoidDeeplyNestedStateRule } from './avoid-deeply-nested-state.js';
 import { avoidStateDuplicationRule } from './avoid-state-duplication.js';
 import { preferExplicitTransitionsRule } from './prefer-explicit-transitions.js';
+import { detectStateInUseEffectRule } from './detect-state-in-useeffect.js';
 
 export const rules: Rule[] = [
   groupRelatedStateRule,
@@ -13,4 +14,5 @@ export const rules: Rule[] = [
   avoidDeeplyNestedStateRule,
   avoidStateDuplicationRule,
   preferExplicitTransitionsRule,
+  detectStateInUseEffectRule,
 ];
