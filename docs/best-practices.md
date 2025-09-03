@@ -26,6 +26,7 @@ Each piece of data should have one authoritative location. Derive everything els
 4. [Group Related State](#group-related-state)
 5. [Avoid State Duplication](#avoid-state-duplication)
 6. [Avoid Deeply Nested State](#avoid-deeply-nested-state)
+7. [Detect State in useEffect](#detect-state-in-useeffect)
 
 ## 1. Avoid State Contradictions
 
@@ -531,6 +532,150 @@ function App() {
   };
 }
 ```
+
+## 7. Detect State in useEffect
+
+### Problem
+
+Using `setState` inside `useEffect` to store derived values causes unnecessary renders and complexity. This is a common misunderstanding where developers treat `useEffect` as a place to compute values, when they should be computed during render.
+
+### Solution
+
+Compute derived values during render or use `useMemo` for expensive computations. Only use `useEffect` for genuine side effects like API calls, subscriptions, or DOM manipulations.
+
+### Examples
+
+#### ❌ Bad: Storing derived state in useEffect
+
+```javascript
+function ProductList({ products }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState([]);
+
+  // Unnecessary state and extra render cycle
+  useEffect(() => {
+    const filtered = products.filter((p) => p.name.includes(searchTerm));
+    setFilteredProducts(filtered);
+  }, [products, searchTerm]);
+
+  return (
+    <div>
+      {filteredProducts.map((p) => (
+        <Product key={p.id} {...p} />
+      ))}
+    </div>
+  );
+}
+```
+
+#### ✅ Good: Compute during render
+
+```javascript
+function ProductList({ products }) {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Computed during render - no extra state or renders
+  const filteredProducts = products.filter((p) => p.name.includes(searchTerm));
+
+  return (
+    <div>
+      {filteredProducts.map((p) => (
+        <Product key={p.id} {...p} />
+      ))}
+    </div>
+  );
+}
+```
+
+#### ✅ Good: Use useMemo for expensive computations
+
+```javascript
+function ProductList({ products }) {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Memoized for performance if computation is expensive
+  const filteredProducts = useMemo(
+    () => products.filter((p) => p.name.includes(searchTerm)),
+    [products, searchTerm]
+  );
+
+  return (
+    <div>
+      {filteredProducts.map((p) => (
+        <Product key={p.id} {...p} />
+      ))}
+    </div>
+  );
+}
+```
+
+### Common Antipatterns
+
+1. **Storing formatted values**
+
+   ```javascript
+   // ❌ Bad
+   useEffect(() => {
+     setFormattedDate(date.toLocaleDateString());
+   }, [date]);
+
+   // ✅ Good - compute during render
+   const formattedDate = date.toLocaleDateString();
+   ```
+
+2. **Storing computed totals/counts**
+
+   ```javascript
+   // ❌ Bad
+   useEffect(() => {
+     setTotal(items.reduce((sum, item) => sum + item.price, 0));
+   }, [items]);
+
+   // ✅ Good - compute during render or useMemo
+   const total = useMemo(() => items.reduce((sum, item) => sum + item.price, 0), [items]);
+   ```
+
+3. **Duplicating props in state**
+
+   ```javascript
+   // ❌ Bad
+   useEffect(() => {
+     setLocalValue(propValue);
+   }, [propValue]);
+
+   // ✅ Good - use the prop directly
+   // If you need local modifications, use a different pattern
+   ```
+
+### Legitimate Uses of setState in useEffect
+
+`useEffect` with `setState` IS appropriate for:
+
+- **External data fetching**: API calls, database queries
+- **Browser/DOM APIs**: window size, scroll position, localStorage
+- **Subscriptions**: WebSockets, event listeners, observables
+- **Timers**: setTimeout, setInterval
+- **External library integration**: Third-party SDK initialization
+
+```javascript
+// ✅ Good: External data source
+useEffect(() => {
+  fetchUserData(userId).then(setUserData);
+}, [userId]);
+
+// ✅ Good: Browser API subscription
+useEffect(() => {
+  const handleResize = () => {
+    setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+  };
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
+```
+
+### Key Principle
+
+**If you can compute it during render without side effects, don't put it in useEffect.**
 
 ## Additional Best Practices
 
