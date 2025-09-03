@@ -1,8 +1,13 @@
-import traverse from '@babel/traverse';
+import { getTraverse } from '../utils/traverse-helper.js';
 import { type NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
 import type { Rule, Issue, ProjectContext } from '../types.js';
-import { isReactComponent, findUseStateCalls, getNodeLocation } from '../utils/ast-helpers.js';
+import {
+  isReactComponent,
+  findUseStateCalls,
+  getNodeLocation,
+  type StateCall,
+} from '../utils/ast-helpers.js';
 
 /**
  * Detects multiple boolean states that can create contradictory UI states
@@ -15,8 +20,8 @@ export const avoidStateContradictionsRule: Rule = {
   check(ast: t.File, filename: string, _context?: ProjectContext): Issue[] {
     const issues: Issue[] = [];
 
-    const traverseFn = typeof traverse === 'function' ? traverse : (traverse as any).default;
-    traverseFn(ast, {
+    const traverse = getTraverse();
+    traverse(ast, {
       FunctionDeclaration(path: NodePath) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
@@ -68,7 +73,7 @@ function checkComponent(path: NodePath, filename: string, issues: Issue[]): void
   }
 }
 
-function isBooleanState(state: any): boolean {
+function isBooleanState(state: StateCall): boolean {
   const name = state.name.toLowerCase();
 
   // Check if name suggests boolean
@@ -81,9 +86,9 @@ function isBooleanState(state: any): boolean {
   return hasBooleanPrefix || hasBooleanInitialValue;
 }
 
-function findContradictoryGroups(booleanStates: any[]): any[][] {
-  const groups: any[][] = [];
-  const processed = new Set<any>();
+function findContradictoryGroups(booleanStates: StateCall[]): StateCall[][] {
+  const groups: StateCall[][] = [];
+  const processed = new Set<StateCall>();
 
   for (let i = 0; i < booleanStates.length; i++) {
     if (processed.has(booleanStates[i])) continue;
@@ -109,7 +114,7 @@ function findContradictoryGroups(booleanStates: any[]): any[][] {
   return groups;
 }
 
-function canContradict(state1: any, state2: any): boolean {
+function canContradict(state1: StateCall, state2: StateCall): boolean {
   const name1 = state1.name.toLowerCase();
   const name2 = state2.name.toLowerCase();
 
@@ -159,7 +164,7 @@ function canContradict(state1: any, state2: any): boolean {
   return false;
 }
 
-function generateEnumValues(group: any[]): string[] {
+function generateEnumValues(group: StateCall[]): string[] {
   const names = group.map((s) => s.name.toLowerCase());
 
   // Try to extract meaningful enum values

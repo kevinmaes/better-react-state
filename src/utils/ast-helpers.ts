@@ -4,7 +4,7 @@ import * as t from '@babel/types';
 export interface StateCall {
   name: string;
   setterName: string;
-  initialValue: any;
+  initialValue: t.Expression | t.SpreadElement | t.ArgumentPlaceholder | null | undefined;
   node: t.CallExpression;
   path: NodePath<t.CallExpression>;
 }

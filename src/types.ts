@@ -41,9 +41,11 @@ export interface AnalysisResult {
   };
 }
 
+import * as t from '@babel/types';
+
 export interface Rule {
   name: string;
   description: string;
   severity: 'error' | 'warning' | 'info';
-  check: (ast: any, filename: string, context?: ProjectContext) => Issue[];
+  check: (ast: t.File, filename: string, context?: ProjectContext) => Issue[];
 }

@@ -22,8 +22,8 @@ export function BadFormWithMultipleStates() {
       setEmail('');
       setPassword('');
       setIsSubmitting(false);
-    } catch (err: any) {
-      setErrors(err.errors);
+    } catch (err) {
+      setErrors((err as Error & { errors: Record<string, string> }).errors);
       setIsSubmitting(false);
     }
   };
@@ -76,7 +76,7 @@ export function BadConditionalStateUpdates() {
       }
     } catch (err) {
       setStatus('error');
-      setError((err as any).message);
+      setError((err as Error).message);
       setRetryCount((prev) => prev + 1);
     }
   };
@@ -159,8 +159,11 @@ export function GoodFormWithReducer() {
     try {
       await submitForm(state);
       dispatch({ type: 'SUBMIT_SUCCESS' });
-    } catch (err: any) {
-      dispatch({ type: 'SUBMIT_ERROR', errors: err.errors });
+    } catch (err) {
+      dispatch({
+        type: 'SUBMIT_ERROR',
+        errors: (err as Error & { errors: Record<string, string> }).errors,
+      });
     }
   };
 
@@ -191,7 +194,7 @@ export function GoodSimpleComponent() {
 }
 
 // Helper function
-async function submitForm(data: any) {
+async function submitForm(data: FormState) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       if (Math.random() > 0.5) {

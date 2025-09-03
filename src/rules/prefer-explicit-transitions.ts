@@ -1,8 +1,13 @@
-import traverse from '@babel/traverse';
+import { getTraverse } from '../utils/traverse-helper.js';
 import { type NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
 import type { Rule, Issue, ProjectContext } from '../types.js';
-import { isReactComponent, findUseStateCalls, getNodeLocation } from '../utils/ast-helpers.js';
+import {
+  isReactComponent,
+  findUseStateCalls,
+  getNodeLocation,
+  type StateCall,
+} from '../utils/ast-helpers.js';
 
 /**
  * Detects multiple useState calls that update together and should use useReducer
@@ -15,8 +20,8 @@ export const preferExplicitTransitionsRule: Rule = {
   check(ast: t.File, filename: string, _context?: ProjectContext): Issue[] {
     const issues: Issue[] = [];
 
-    const traverseFn = typeof traverse === 'function' ? traverse : (traverse as any).default;
-    traverseFn(ast, {
+    const traverse = getTraverse();
+    traverse(ast, {
       FunctionDeclaration(path: NodePath) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues, _context);
@@ -90,13 +95,16 @@ function hasUseReducer(path: NodePath): boolean {
 
 interface StateUpdatePattern {
   setterName: string;
-  updateLocations: any[];
+  updateLocations: NodePath<t.CallExpression>[];
   updatesWithOthers: string[];
   conditionalUpdates: number;
   dependsOnPrevState: boolean;
 }
 
-function analyzeStateUpdates(path: NodePath, stateCalls: any[]): Map<string, StateUpdatePattern> {
+function analyzeStateUpdates(
+  path: NodePath,
+  stateCalls: StateCall[]
+): Map<string, StateUpdatePattern> {
   const patterns = new Map<string, StateUpdatePattern>();
 
   // Initialize patterns for each state setter
@@ -193,7 +201,7 @@ function areInSameScope(path1: NodePath, path2: NodePath): boolean {
 }
 
 function getComplexityLevel(
-  stateCalls: any[],
+  stateCalls: StateCall[],
   patterns: Map<string, StateUpdatePattern>
 ): 'simple' | 'moderate' | 'complex' {
   const stateCount = stateCalls.length;
