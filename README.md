@@ -1,7 +1,7 @@
 # better-react-state
 
 [![CI](https://github.com/kevinmaes/better-react-state/actions/workflows/ci.yml/badge.svg)](https://github.com/kevinmaes/better-react-state/actions/workflows/ci.yml)
-[![npm version](https://badge.fury.io/js/better-react-state.svg)](https://www.npmjs.com/package/better-react-state)
+[![npm version](https://img.shields.io/npm/v/better-react-state.svg)](https://www.npmjs.com/package/better-react-state)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A tool to analyze and fix React state management antipatterns.
