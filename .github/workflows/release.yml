@@ -52,6 +52,26 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Update README to refresh badges
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Get the new version from package.json
+          NEW_VERSION=$(node -p "require('./package.json').version")
+
+          # Add an invisible comment to README to force cache refresh
+          # This uses HTML comments which are not visible in rendered markdown
+          sed -i "s/<!-- version-cache-bust: .* -->/<!-- version-cache-bust: v$NEW_VERSION -->/" README.md || \
+          echo -e "\n<!-- version-cache-bust: v$NEW_VERSION -->" >> README.md
+
+          # Commit the change
+          git add README.md
+          git commit -m "chore: refresh badges for v$NEW_VERSION [skip ci]" || echo "No changes to commit"
+          git push origin main || echo "No changes to push"
+
       - name: Merge main back to dev
         if: steps.changesets.outputs.published == 'true'
         run: |
