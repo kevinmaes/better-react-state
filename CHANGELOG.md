@@ -1,5 +1,12 @@
 # better-react-state
 
+## 0.4.2
+
+### Patch Changes
+
+- e3880e5: Edit down the Roadmap
+- 468ee8a: Update roadmap to reference GitHub issues for todo items
+
 ## 0.4.1
 
 ### Patch Changes
