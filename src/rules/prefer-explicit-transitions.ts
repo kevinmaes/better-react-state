@@ -244,7 +244,7 @@ function getComplexityLevel(
 
 function getSuggestion(
   complexity: 'moderate' | 'complex',
-  stateCount: number,
+  _stateCount: number,
   context?: ProjectContext
 ): string {
   if (complexity === 'moderate') {

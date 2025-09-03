@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 // BAD: Derived state stored via useEffect
 export function BadFilteredList({ products }: { products: Product[] }) {

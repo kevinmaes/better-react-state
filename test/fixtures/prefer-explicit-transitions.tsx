@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from 'react';
+import { useState, useReducer } from 'react';
 
 // Example 1: Multiple states updated together
 export function BadFormWithMultipleStates() {
@@ -16,7 +16,7 @@ export function BadFormWithMultipleStates() {
     setSubmitCount((prev) => prev + 1);
 
     try {
-      await submitForm({ name, email, password });
+      await submitForm({ name, email, password, isSubmitting: _isSubmitting, errors: _errors, submitCount: _submitCount });
       // More updates together
       setName('');
       setEmail('');
@@ -52,7 +52,7 @@ export function BadFormWithMultipleStates() {
 export function BadConditionalStateUpdates() {
   const [status, setStatus] = useState('idle');
   const [_data, setData] = useState(null);
-  const [_error, setError] = useState(null);
+  const [_error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
 
   const _fetchData = async () => {
