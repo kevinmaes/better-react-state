@@ -97,7 +97,6 @@ function analyzeComponent(path: NodePath, componentProps: Map<string, PropUsage[
     }
   }
 
-
   componentProps.set(componentName, propUsages);
 }
 
@@ -182,7 +181,6 @@ function analyzePropUsage(
   let isUsedInComponent = false;
   let isPassedToChild = false;
   const location = getNodeLocation(componentPath.node);
-  
 
   // Handle spread props specially
   if (propName.startsWith('...')) {
@@ -208,7 +206,7 @@ function analyzePropUsage(
     };
   }
 
-  // Track where the prop is used  
+  // Track where the prop is used
   componentPath.traverse({
     Identifier(idPath: NodePath<t.Identifier>) {
       if (idPath.node.name !== propName) return;
@@ -327,7 +325,6 @@ function detectDrilledProps(componentProps: Map<string, PropUsage[]>): Map<strin
     // Add final consumers (components that actually use the prop)
     const consumers = usages.filter((u) => u.isUsedInComponent);
     allComponents.push(...consumers);
-    
 
     // We need at least one intermediate component that drills
     // and at least one usage total (either drilling or consuming)

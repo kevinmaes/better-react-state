@@ -115,7 +115,7 @@ function BadFormApp() {
 // ===========================================================================
 function TwoLevelExample() {
   const [warningData, setWarningData] = useState({ status: 'active' });
-  
+
   return (
     <div>
       <h2>Two Level Prop Drilling (WARNING)</h2>
@@ -138,9 +138,7 @@ function TwoLevelFinal({ warningData, onWarningUpdate }) {
   return (
     <div className="two-level-final">
       <span>Status: {warningData.status}</span>
-      <button onClick={() => onWarningUpdate({ status: 'inactive' })}>
-        Toggle Status
-      </button>
+      <button onClick={() => onWarningUpdate({ status: 'inactive' })}>Toggle Status</button>
     </div>
   );
 }
@@ -150,7 +148,7 @@ function TwoLevelFinal({ warningData, onWarningUpdate }) {
 // ===========================================================================
 function ThreeLevelExample() {
   const [errorData, setErrorData] = useState({ severity: 'high' });
-  
+
   return (
     <div>
       <h2>Three Level Prop Drilling (ERROR)</h2>
@@ -182,9 +180,7 @@ function ThreeLevelThird({ errorData, onErrorUpdate }) {
   return (
     <div className="three-level-third">
       <span>Severity: {errorData.severity}</span>
-      <button onClick={() => onErrorUpdate({ severity: 'low' })}>
-        Change Severity
-      </button>
+      <button onClick={() => onErrorUpdate({ severity: 'low' })}>Change Severity</button>
     </div>
   );
 }
