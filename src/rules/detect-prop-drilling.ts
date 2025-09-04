@@ -19,7 +19,7 @@ interface PropUsage {
  */
 export const detectPropDrillingRule: Rule = {
   name: 'detect-prop-drilling',
-  description: 'Props should not be drilled through multiple component layers',
+  description: 'Props should not be drilled through multiple component layers (warning for 2 levels, error for 3+ levels)',
   severity: 'warning',
 
   check(ast: t.File, filename: string, _context?: ProjectContext): Issue[] {
@@ -58,14 +58,20 @@ export const detectPropDrillingRule: Rule = {
       if (firstDriller) {
         const chainDescription = components.map((c) => c.componentName).join(' → ');
 
+        // Use graduated severity: warning for 2 levels, error for 3+ levels
+        const severity = components.length >= 3 ? 'error' : 'warning';
+        const severityText = severity === 'error' ? 'deep prop drilling' : 'prop drilling';
+
         issues.push({
           rule: 'detect-prop-drilling',
-          severity: 'warning',
-          message: `Prop "${propName}" is drilled through ${components.length} components (${chainDescription}) without being used in intermediate components`,
+          severity,
+          message: `Prop "${propName}" is drilled through ${components.length} components (${chainDescription}) without being used in intermediate components - ${severityText} detected`,
           file: filename,
           line: firstDriller.location.line,
           column: firstDriller.location.column,
-          suggestion: `Consider using React Context for "${propName}" or use component composition to avoid prop drilling`,
+          suggestion: severity === 'error' 
+            ? `Critical: Use React Context or component composition to eliminate this deep prop drilling for "${propName}"`
+            : `Consider using React Context for "${propName}" or use component composition to avoid prop drilling`,
           fixable: false,
         });
       }
@@ -309,30 +315,21 @@ function detectDrilledProps(componentProps: Map<string, PropUsage[]>): Map<strin
     // Skip spread props for now
     if (propName.includes('spread')) continue;
 
-    // Look for props that are passed through components without being used
-    const drillingChain: PropUsage[] = [];
-
-    for (const usage of usages) {
-      // A component is "drilling" if it passes the prop but doesn't use it
-      if (!usage.isUsedInComponent && usage.isPassedToChild) {
-        drillingChain.push(usage);
-      } else if (usage.isUsedInComponent) {
-        // This component actually uses the prop
-        // If we have a drilling chain, add this as the final consumer
-        if (drillingChain.length > 0) {
-          drillingChain.push(usage);
-        }
-      }
-    }
-
-    // Consider it drilling if we have at least one driller
-    // (component that just passes without using)
-    const drillers = drillingChain.filter((u) => !u.isUsedInComponent && u.isPassedToChild);
+    // Count all components that handle this prop (drillers + final consumer)
+    const allComponents: PropUsage[] = [];
+    
+    // Add all drillers (components that pass but don't use)
+    const drillers = usages.filter(u => !u.isUsedInComponent && u.isPassedToChild);
+    allComponents.push(...drillers);
+    
+    // Add final consumers (components that actually use the prop)
+    const consumers = usages.filter(u => u.isUsedInComponent);
+    allComponents.push(...consumers);
 
     // We need at least one intermediate component that drills
     // and at least one usage total (either drilling or consuming)
-    if (drillers.length >= 1 && drillingChain.length >= 2) {
-      drilledProps.set(propName, drillingChain);
+    if (drillers.length >= 1 && allComponents.length >= 2) {
+      drilledProps.set(propName, allComponents);
     }
   }
 

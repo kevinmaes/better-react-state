@@ -110,6 +110,43 @@ function _BadFormApp() {
   return <FormWrapper formData={formData} onSubmit={handleSubmit} />;
 }
 
+// Bad Pattern: DEEP Prop Drilling (3+ levels - should be ERROR)
+function _VeryBadApp() {
+  const [deepData, setDeepData] = useState({ value: 'deep' });
+  
+  return <Level1 deepData={deepData} onUpdate={setDeepData} />;
+}
+
+function Level1({ deepData, onUpdate }) {
+  // Doesn't use deepData or onUpdate - just passes them
+  return (
+    <div className="level1">
+      <Level2 deepData={deepData} onUpdate={onUpdate} />
+    </div>
+  );
+}
+
+function Level2({ deepData, onUpdate }) {
+  // Also doesn't use them - just passes them
+  return (
+    <div className="level2">
+      <Level3 deepData={deepData} onUpdate={onUpdate} />
+    </div>
+  );
+}
+
+function Level3({ deepData, onUpdate }) {
+  // Finally uses the props
+  return (
+    <div className="level3">
+      <span>{deepData.value}</span>
+      <button onClick={() => onUpdate({ value: 'updated' })}>
+        Update
+      </button>
+    </div>
+  );
+}
+
 function FormWrapper(props: any) {
   // Doesn't use props directly, just passes them
   return (
