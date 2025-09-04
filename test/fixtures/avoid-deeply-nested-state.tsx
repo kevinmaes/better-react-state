@@ -27,7 +27,7 @@ export function BadUserProfile() {
   });
 
   // Complex update to change city
-  const _updateCity = (newCity: string) => {
+  const updateCity = (newCity: string) => {
     setUser({
       ...user,
       profile: {
@@ -51,7 +51,7 @@ export function BadUserProfile() {
 
 // Example 2: Deeply nested app state
 export function BadAppState() {
-  const [_appState, _setAppState] = useState({
+  const [appState, setAppState] = useState({
     ui: {
       modals: {
         settings: {
@@ -83,7 +83,7 @@ export function GoodUserProfile() {
     position: 'Developer',
   });
 
-  const _updateCity = (newCity: string) => {
+  const updateCity = (newCity: string) => {
     setUserProfile({
       ...userProfile,
       city: newCity,
@@ -95,7 +95,7 @@ export function GoodUserProfile() {
 
 // Example 4: Good - Normalized state
 export function GoodNormalizedState() {
-  const [_entities, _setEntities] = useState({
+  const [entities, setEntities] = useState({
     users: {
       1: { id: 1, name: 'John', addressId: 'addr1' },
     },
@@ -109,7 +109,7 @@ export function GoodNormalizedState() {
 
 // Example 5: Acceptable - 2 levels deep
 export function AcceptableNesting() {
-  const [_settings, _setSettings] = useState({
+  const [settings, setSettings] = useState({
     theme: {
       primary: 'blue',
       secondary: 'gray',

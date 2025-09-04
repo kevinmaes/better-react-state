@@ -9,8 +9,8 @@ interface UserProps {
 // Example 1: State initialized from props
 export function BadPropsInit({ userId, userName }: UserProps) {
   // Bad: Initializing state from props can cause sync issues
-  const [id, _setId] = useState(userId);
-  const [name, _setName] = useState(userName);
+  const [id, setId] = useState(userId);
+  const [name, setName] = useState(userName);
 
   // Props might change but state won't update automatically
   return (
@@ -23,17 +23,17 @@ export function BadPropsInit({ userId, userName }: UserProps) {
 
 // Example 2: State duplicating other state
 export function BadStateDuplication() {
-  const [user, _setUser] = useState({
+  const [user, setUser] = useState({
     id: 1,
     name: 'John',
     email: 'john@example.com',
   });
 
   // Bad: Duplicating user data in separate state
-  const [_selectedUserId, setSelectedUserId] = useState(user.id);
+  const [selectedUserId, setSelectedUserId] = useState(user.id);
   const [displayName, setDisplayName] = useState(user.name);
 
-  const _selectUser = () => {
+  const selectUser = () => {
     // Updating multiple states that duplicate data
     setSelectedUserId(user.id);
     setDisplayName(user.name);
@@ -44,7 +44,7 @@ export function BadStateDuplication() {
 
 // Example 3: Storing entire object when only using part
 export function BadSelectiveUsage() {
-  const [fullUserData, _setFullUserData] = useState({
+  const [fullUserData, setFullUserData] = useState({
     id: 1,
     name: 'John',
     email: 'john@example.com',
