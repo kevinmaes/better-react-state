@@ -7,6 +7,7 @@ import { avoidStateDuplicationRule } from './avoid-state-duplication.js';
 import { preferExplicitTransitionsRule } from './prefer-explicit-transitions.js';
 import { detectStateInUseEffectRule } from './detect-state-in-useeffect.js';
 import { detectPropDrillingRule } from './detect-prop-drilling.js';
+import { stateVsRefsRule } from './state-vs-refs.js';
 
 export const rules: Rule[] = [
   groupRelatedStateRule,
@@ -17,4 +18,5 @@ export const rules: Rule[] = [
   preferExplicitTransitionsRule,
   detectStateInUseEffectRule,
   detectPropDrillingRule,
+  stateVsRefsRule,
 ];
