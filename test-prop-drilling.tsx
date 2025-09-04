@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 // ============================================
 // EXAMPLE 1: 2-Level Drilling (WARNING)
 // ============================================
-function _App() {
+function App() {
   const [userData, setUserData] = useState({ name: 'Alice' });
   return <Level1Warning userData={userData} onUpdate={setUserData} />;
 }
@@ -26,7 +26,7 @@ function Level2Warning({ userData, onUpdate }) {
 // ============================================
 // EXAMPLE 2: 3-Level Drilling (ERROR)
 // ============================================
-function _DeepApp() {
+function DeepApp() {
   const [config, setConfig] = useState({ theme: 'dark' });
   return <Level1Error config={config} onConfigChange={setConfig} />;
 }
@@ -54,7 +54,7 @@ function Level3Error({ config, onConfigChange }) {
 // ============================================
 // EXAMPLE 3: NO DRILLING (Good Pattern)
 // ============================================
-function _GoodApp() {
+function GoodApp() {
   const [data, setData] = useState({ value: 42 });
   return <GoodLevel1 data={data} onUpdate={setData} />;
 }

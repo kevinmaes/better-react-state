@@ -58,11 +58,11 @@ export function BadFormWithMultipleStates() {
 // Example 2: Complex conditional state logic
 export function BadConditionalStateUpdates() {
   const [status, setStatus] = useState('idle');
-  const [_data, setData] = useState(null);
-  const [_error, setError] = useState<string | null>(null);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
 
-  const _fetchData = async () => {
+  const fetchData = async () => {
     if (status === 'loading') return;
 
     setStatus('loading');

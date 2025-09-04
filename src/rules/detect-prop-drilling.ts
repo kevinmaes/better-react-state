@@ -215,7 +215,6 @@ function analyzePropUsage(
 
       // Skip if this is in the function parameters (destructuring)
       // We're only interested in actual usage in the function body
-      const functionNode = componentPath.node as t.Function;
       const paramPath = componentPath.get('params.0') as NodePath;
       if (paramPath && paramPath.isAncestor(idPath)) {
         // This identifier is within the parameter definition

@@ -61,6 +61,13 @@ export default [
     },
   },
   {
+    files: ['test/fixtures/**/*.tsx', 'test/fixtures/**/*.ts', 'test-*.tsx', 'test-*.ts'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'off',
+      'no-unused-vars': 'off',
+    },
+  },
+  {
     ignores: ['node_modules/', 'dist/', 'coverage/', '**/*.js', '**/*.d.ts'],
   },
 ];

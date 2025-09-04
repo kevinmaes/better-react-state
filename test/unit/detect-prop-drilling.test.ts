@@ -41,7 +41,7 @@ describe('detectPropDrillingRule', () => {
 
     // Should have different severities based on depth
     const warnings = issues.filter((i) => i.severity === 'warning');
-    const errors = issues.filter((i) => i.severity === 'error');
+    const _errors = issues.filter((i) => i.severity === 'error');
 
     expect(warnings.length).toBeGreaterThan(0);
     expect(warnings[0].message).toContain('prop drilling detected');

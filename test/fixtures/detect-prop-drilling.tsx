@@ -2,7 +2,7 @@ import React, { useState, createContext, useContext } from 'react';
 
 // Bad Pattern: Prop Drilling through multiple layers
 // user and onUserUpdate are passed through Dashboard and Sidebar without being used
-function _BadApp() {
+function BadApp() {
   const [user, setUser] = useState({ name: 'John', role: 'admin' });
   const [theme, setTheme] = useState('light');
 
@@ -40,7 +40,7 @@ function UserProfile({ user, onUserUpdate }) {
 }
 
 // Bad Pattern: Multiple props drilled
-function _BadProductApp() {
+function BadProductApp() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cartItems, setCartItems] = useState([]);
   const [isLoading, _setIsLoading] = useState(false);
@@ -98,7 +98,7 @@ function ProductCard({ selectedProduct, onProductSelect, cartItems, onAddToCart 
 }
 
 // Bad Pattern: Props object drilling
-function _BadFormApp() {
+function BadFormApp() {
   const formData = {
     firstName: '',
     lastName: '',
@@ -221,7 +221,7 @@ function ActualForm({ formData, onSubmit }) {
 // Good Pattern: Using Context API
 const UserContext = createContext<any>(null);
 
-function _GoodAppWithContext() {
+function GoodAppWithContext() {
   const [user, setUser] = useState({ name: 'John', role: 'admin' });
 
   return (
@@ -263,7 +263,7 @@ function GoodUserProfile() {
 }
 
 // Good Pattern: Component Composition
-function _GoodAppWithComposition() {
+function GoodAppWithComposition() {
   const [user, setUser] = useState({ name: 'John', role: 'admin' });
 
   return (
@@ -294,7 +294,7 @@ function ComposedUserProfile({ user, onUserUpdate }) {
 }
 
 // Good Pattern: Props used at each level
-function _GoodAppWithUsedProps() {
+function GoodAppWithUsedProps() {
   const [user, setUser] = useState({ name: 'John', role: 'admin' });
 
   return <UsefulDashboard user={user} onUserUpdate={setUser} />;
@@ -348,10 +348,10 @@ function withAuth(Component: any) {
   };
 }
 
-const _AuthenticatedProfile = withAuth(UserProfile);
+const AuthenticatedProfile = withAuth(UserProfile);
 
 // Edge Case: Library-like component that needs to forward props
-function _Button({ onClick, children, ...restProps }) {
+function Button({ onClick, children, ...restProps }) {
   // This is intentional forwarding for a reusable component
   return (
     <button onClick={onClick} {...restProps}>
@@ -369,7 +369,7 @@ interface UserProps {
   onUpdate: (user: any) => void;
 }
 
-const _TypedBadDashboard: React.FC<UserProps> = ({ user, onUpdate }) => {
+const TypedBadDashboard: React.FC<UserProps> = ({ user, onUpdate }) => {
   // Doesn't use props, just passes them
   return <TypedBadSidebar user={user} onUpdate={onUpdate} />;
 };
