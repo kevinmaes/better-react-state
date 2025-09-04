@@ -16,7 +16,14 @@ export function BadFormWithMultipleStates() {
     setSubmitCount((prev) => prev + 1);
 
     try {
-      await submitForm({ name, email, password, isSubmitting: _isSubmitting, errors: _errors, submitCount: _submitCount });
+      await submitForm({
+        name,
+        email,
+        password,
+        isSubmitting: _isSubmitting,
+        errors: _errors,
+        submitCount: _submitCount,
+      });
       // More updates together
       setName('');
       setEmail('');

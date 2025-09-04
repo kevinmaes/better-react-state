@@ -6,6 +6,7 @@ import { avoidDeeplyNestedStateRule } from './avoid-deeply-nested-state.js';
 import { avoidStateDuplicationRule } from './avoid-state-duplication.js';
 import { preferExplicitTransitionsRule } from './prefer-explicit-transitions.js';
 import { detectStateInUseEffectRule } from './detect-state-in-useeffect.js';
+import { detectPropDrillingRule } from './detect-prop-drilling.js';
 
 export const rules: Rule[] = [
   groupRelatedStateRule,
@@ -15,4 +16,5 @@ export const rules: Rule[] = [
   avoidStateDuplicationRule,
   preferExplicitTransitionsRule,
   detectStateInUseEffectRule,
+  detectPropDrillingRule,
 ];

@@ -11,16 +11,11 @@ Static analysis tool for identifying React state management antipatterns and pro
 | **Group Related State**         | Detects separate useState for related data           | High     | [📖](best-practices.md#group-related-state)               |
 | **Avoid State Duplication**     | Finds data stored in multiple state variables        | High     | [📖](best-practices.md#avoid-state-duplication)           |
 | **Detect State in useEffect**   | setState in useEffect indicating derived state       | High     | [📖](best-practices.md#detect-state-in-useeffect)         |
+| **Detect Prop Drilling**        | Props passed through 2+ components unchanged         | High     | [📖](best-practices.md#detect-prop-drilling)              |
 | **Prefer Explicit Transitions** | Suggests useReducer for complex updates              | Medium   | [📖](best-practices.md#prefer-explicit-state-transitions) |
 | **Avoid Deeply Nested State**   | Warns about state nested >2 levels                   | Medium   | [📖](best-practices.md#avoid-deeply-nested-state)         |
 
 ## 🚧 Future Rules
-
-### Phase 1: High-Value Rules
-
-| Rule                     | Description                                  | Issue                                                            |
-| ------------------------ | -------------------------------------------- | ---------------------------------------------------------------- |
-| **Detect Prop Drilling** | Props passed through 2+ components unchanged | [#38](https://github.com/kevinmaes/better-react-state/issues/38) |
 
 ### Phase 2: Architecture & Performance
 
@@ -75,4 +70,4 @@ Target rules: All implemented rules + high-priority future rules
 
 ---
 
-_Last updated: 2025-01-03_
+_Last updated: 2025-09-04_
