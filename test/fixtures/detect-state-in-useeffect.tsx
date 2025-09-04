@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 // BAD: Derived state stored via useEffect
 export function BadFilteredList({ products }: { products: Product[] }) {
@@ -94,14 +94,14 @@ export function GoodLocalStorageSync() {
   const [preferences, setPreferences] = useState<Preferences>({});
 
   useEffect(() => {
-    const saved = (global as any).localStorage?.getItem('preferences');
+    const saved = window.localStorage.getItem('preferences');
     if (saved) {
       setPreferences(JSON.parse(saved));
     }
   }, []);
 
   useEffect(() => {
-    (global as any).localStorage?.setItem('preferences', JSON.stringify(preferences));
+    window.localStorage.setItem('preferences', JSON.stringify(preferences));
   }, [preferences]);
 
   return <div>Theme: {preferences.theme}</div>;
@@ -150,7 +150,7 @@ export function GoodWebSocket({ url }: { url: string }) {
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    const ws = new (global as any).WebSocket(url);
+    const ws = new window.WebSocket(url);
 
     ws.onmessage = (event) => {
       setMessages((prev) => [...prev, JSON.parse(event.data)]);

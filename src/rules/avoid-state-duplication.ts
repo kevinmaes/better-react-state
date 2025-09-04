@@ -1,8 +1,13 @@
-import traverse from '@babel/traverse';
+import { getTraverse } from '../utils/traverse-helper.js';
 import { type NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
 import type { Rule, Issue, ProjectContext } from '../types.js';
-import { isReactComponent, findUseStateCalls, getNodeLocation } from '../utils/ast-helpers.js';
+import {
+  isReactComponent,
+  findUseStateCalls,
+  getNodeLocation,
+  type StateCall,
+} from '../utils/ast-helpers.js';
 
 /**
  * Detects state that duplicates data from props or other state
@@ -15,8 +20,8 @@ export const avoidStateDuplicationRule: Rule = {
   check(ast: t.File, filename: string, _context?: ProjectContext): Issue[] {
     const issues: Issue[] = [];
 
-    const traverseFn = typeof traverse === 'function' ? traverse : (traverse as any).default;
-    traverseFn(ast, {
+    const traverse = getTraverse();
+    traverse(ast, {
       FunctionDeclaration(path: NodePath) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
@@ -63,7 +68,7 @@ function extractComponentProps(path: NodePath): string[] {
 
     // Handle destructured props: function Component({ prop1, prop2 })
     if (t.isObjectPattern(firstParam)) {
-      firstParam.properties.forEach((prop: any) => {
+      firstParam.properties.forEach((prop) => {
         if (t.isObjectProperty(prop) && t.isIdentifier(prop.key)) {
           props.push(prop.key.name);
         }
@@ -90,7 +95,7 @@ function extractComponentProps(path: NodePath): string[] {
 }
 
 function checkPropsInitialization(
-  stateCalls: any[],
+  stateCalls: StateCall[],
   props: string[],
   filename: string,
   issues: Issue[]
@@ -143,7 +148,7 @@ function checkPropsInitialization(
 }
 
 function checkStateDuplication(
-  stateCalls: any[],
+  stateCalls: StateCall[],
   path: NodePath,
   filename: string,
   issues: Issue[]
@@ -184,7 +189,7 @@ function checkStateDuplication(
 }
 
 function checkSelectiveUsage(
-  stateCalls: any[],
+  stateCalls: StateCall[],
   path: NodePath,
   filename: string,
   issues: Issue[]
@@ -235,7 +240,9 @@ function checkSelectiveUsage(
   }
 }
 
-function extractPropReference(node: any): string | null {
+function extractPropReference(
+  node: t.Expression | t.SpreadElement | t.ArgumentPlaceholder
+): string | null {
   if (t.isIdentifier(node)) {
     return node.name;
   }
@@ -247,11 +254,15 @@ function extractPropReference(node: any): string | null {
   return null;
 }
 
-function isObjectInitializer(node: any): boolean {
+function isObjectInitializer(
+  node: t.Expression | t.SpreadElement | t.ArgumentPlaceholder | null | undefined
+): boolean {
   return t.isObjectExpression(node) || (t.isIdentifier(node) && node.name.includes('initial'));
 }
 
-function countObjectProperties(node: any): number {
+function countObjectProperties(
+  node: t.Expression | t.SpreadElement | t.ArgumentPlaceholder | null | undefined
+): number {
   if (t.isObjectExpression(node)) {
     return node.properties.length;
   }

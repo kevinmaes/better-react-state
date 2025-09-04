@@ -1,5 +1,4 @@
-import traverse from '@babel/traverse';
-import { type NodePath } from '@babel/traverse';
+import { getTraverse, type NodePath } from '../utils/traverse-helper.js';
 import * as t from '@babel/types';
 import type { Rule, Issue, ProjectContext } from '../types.js';
 import { isReactComponent, findUseStateCalls, getNodeLocation } from '../utils/ast-helpers.js';
@@ -15,8 +14,8 @@ export const avoidRedundantStateRule: Rule = {
   check(ast: t.File, filename: string, _context?: ProjectContext): Issue[] {
     const issues: Issue[] = [];
 
-    const traverseFn = typeof traverse === 'function' ? traverse : (traverse as any).default;
-    traverseFn(ast, {
+    const traverse = getTraverse();
+    traverse(ast, {
       FunctionDeclaration(path: NodePath) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);

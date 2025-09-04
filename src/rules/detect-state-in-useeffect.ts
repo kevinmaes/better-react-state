@@ -1,5 +1,4 @@
-import traverse from '@babel/traverse';
-import { type NodePath } from '@babel/traverse';
+import { getTraverse, type NodePath } from '../utils/traverse-helper.js';
 import * as t from '@babel/types';
 import type { Rule, Issue, ProjectContext } from '../types.js';
 import { isReactComponent, getNodeLocation, findUseEffectCalls } from '../utils/ast-helpers.js';
@@ -16,8 +15,8 @@ export const detectStateInUseEffectRule: Rule = {
   check(ast: t.File, filename: string, _context?: ProjectContext): Issue[] {
     const issues: Issue[] = [];
 
-    const traverseFn = typeof traverse === 'function' ? traverse : (traverse as any).default;
-    traverseFn(ast, {
+    const traverse = getTraverse();
+    traverse(ast, {
       FunctionDeclaration(path: NodePath) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
@@ -224,16 +223,16 @@ function containsComputation(node: t.Node): boolean {
 
     // Recursively check child nodes
     for (const key in n) {
-      const value = (n as any)[key];
+      const value = (n as unknown as Record<string, unknown>)[key];
       if (value && typeof value === 'object') {
         if (Array.isArray(value)) {
           value.forEach((item) => {
-            if (item && typeof item === 'object' && item.type) {
-              checkNode(item);
+            if (item && typeof item === 'object' && 'type' in item) {
+              checkNode(item as t.Node);
             }
           });
-        } else if (value.type) {
-          checkNode(value);
+        } else if ('type' in value) {
+          checkNode(value as t.Node);
         }
       }
     }

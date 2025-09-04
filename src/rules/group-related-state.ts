@@ -1,8 +1,13 @@
-import traverse from '@babel/traverse';
+import { getTraverse } from '../utils/traverse-helper.js';
 import { type NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
 import type { Rule, Issue, ProjectContext } from '../types.js';
-import { isReactComponent, findUseStateCalls, getNodeLocation } from '../utils/ast-helpers.js';
+import {
+  isReactComponent,
+  findUseStateCalls,
+  getNodeLocation,
+  type StateCall,
+} from '../utils/ast-helpers.js';
 
 /**
  * Detects multiple useState calls that appear to be related and should be grouped
@@ -16,8 +21,8 @@ export const groupRelatedStateRule: Rule = {
   check(ast: t.File, filename: string, _context?: ProjectContext): Issue[] {
     const issues: Issue[] = [];
 
-    const traverseFn = typeof traverse === 'function' ? traverse : (traverse as any).default;
-    traverseFn(ast, {
+    const traverse = getTraverse();
+    traverse(ast, {
       FunctionDeclaration(path: NodePath) {
         if (isReactComponent(path)) {
           checkComponent(path, filename, issues);
@@ -62,9 +67,9 @@ function checkComponent(path: NodePath, filename: string, issues: Issue[]): void
   }
 }
 
-function findRelatedStateGroups(stateCalls: any[]): any[][] {
-  const groups: any[][] = [];
-  const processed = new Set<any>();
+function findRelatedStateGroups(stateCalls: StateCall[]): StateCall[][] {
+  const groups: StateCall[][] = [];
+  const processed = new Set<StateCall>();
 
   for (let i = 0; i < stateCalls.length; i++) {
     if (processed.has(stateCalls[i])) continue;
@@ -90,7 +95,7 @@ function findRelatedStateGroups(stateCalls: any[]): any[][] {
   return groups;
 }
 
-function areRelated(state1: any, state2: any, _allStates: any[]): boolean {
+function areRelated(state1: StateCall, state2: StateCall, _allStates: StateCall[]): boolean {
   const name1 = state1.name.toLowerCase();
   const name2 = state2.name.toLowerCase();
 
@@ -162,7 +167,7 @@ function extractBaseName(name: string): string | null {
   return null;
 }
 
-function getGroupName(group: any[]): string {
+function getGroupName(group: StateCall[]): string {
   // Try to find a common base name
   const baseNames = group.map((s) => extractBaseName(s.name)).filter(Boolean);
   if (baseNames.length > 0) {
@@ -177,7 +182,9 @@ function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-function getInitialValueString(node: any): string {
+function getInitialValueString(
+  node: t.Expression | t.SpreadElement | t.ArgumentPlaceholder | null | undefined
+): string {
   if (!node) return 'undefined';
 
   if (t.isStringLiteral(node)) return `'${node.value}'`;
