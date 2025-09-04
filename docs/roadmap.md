@@ -14,15 +14,15 @@ Static analysis tool for identifying React state management antipatterns and pro
 | **Detect Prop Drilling**        | Props passed through 2+ components unchanged         | High     | [📖](best-practices.md#detect-prop-drilling)              |
 | **Prefer Explicit Transitions** | Suggests useReducer for complex updates              | Medium   | [📖](best-practices.md#prefer-explicit-state-transitions) |
 | **Avoid Deeply Nested State**   | Warns about state nested >2 levels                   | Medium   | [📖](best-practices.md#avoid-deeply-nested-state)         |
+| **State vs Refs**               | State that doesn't affect render output              | Medium   | [📖](best-practices.md#state-vs-refs)                     |
 
 ## 🚧 Future Rules
 
 ### Phase 2: Architecture & Performance
 
-| Rule                       | Description                             | Priority | Issue                                                            |
-| -------------------------- | --------------------------------------- | -------- | ---------------------------------------------------------------- |
-| **Server vs Client State** | API data in useState vs React Query/SWR | High     | [#40](https://github.com/kevinmaes/better-react-state/issues/40) |
-| **State vs Refs**          | State that doesn't affect render        | High     | [#41](https://github.com/kevinmaes/better-react-state/issues/41) |
+| Rule                       | Description                             | Issue                                                            |
+| -------------------------- | --------------------------------------- | ---------------------------------------------------------------- |
+| **Server vs Client State** | API data in useState vs React Query/SWR | [#40](https://github.com/kevinmaes/better-react-state/issues/40) |
 
 ### Phase 3: Developer Experience
 
