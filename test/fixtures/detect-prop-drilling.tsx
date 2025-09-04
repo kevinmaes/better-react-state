@@ -110,37 +110,81 @@ function _BadFormApp() {
   return <FormWrapper formData={formData} onSubmit={handleSubmit} />;
 }
 
-// Bad Pattern: DEEP Prop Drilling (3+ levels - should be ERROR)
-function _VeryBadApp() {
-  const [deepData, setDeepData] = useState({ value: 'deep' });
-
-  return <Level1 deepData={deepData} onUpdate={setDeepData} />;
-}
-
-function Level1({ deepData, onUpdate }) {
-  // Doesn't use deepData or onUpdate - just passes them
+// ===========================================================================
+// CLEAR EXAMPLE: 2-Level Prop Drilling (Should be WARNING)
+// ===========================================================================
+function TwoLevelExample() {
+  const [warningData, setWarningData] = useState({ status: 'active' });
+  
   return (
-    <div className="level1">
-      <Level2 deepData={deepData} onUpdate={onUpdate} />
+    <div>
+      <h2>Two Level Prop Drilling (WARNING)</h2>
+      <TwoLevelMiddle warningData={warningData} onWarningUpdate={setWarningData} />
     </div>
   );
 }
 
-function Level2({ deepData, onUpdate }) {
-  // Also doesn't use them - just passes them
+function TwoLevelMiddle({ warningData, onWarningUpdate }) {
+  // ⚠️ Doesn't use warningData or onWarningUpdate - just passes them (1st drill)
   return (
-    <div className="level2">
-      <Level3 deepData={deepData} onUpdate={onUpdate} />
+    <div className="two-level-middle">
+      <TwoLevelFinal warningData={warningData} onWarningUpdate={onWarningUpdate} />
     </div>
   );
 }
 
-function Level3({ deepData, onUpdate }) {
-  // Finally uses the props
+function TwoLevelFinal({ warningData, onWarningUpdate }) {
+  // ✅ Finally uses the props after 1 intermediate component
   return (
-    <div className="level3">
-      <span>{deepData.value}</span>
-      <button onClick={() => onUpdate({ value: 'updated' })}>Update</button>
+    <div className="two-level-final">
+      <span>Status: {warningData.status}</span>
+      <button onClick={() => onWarningUpdate({ status: 'inactive' })}>
+        Toggle Status
+      </button>
+    </div>
+  );
+}
+
+// ===========================================================================
+// CLEAR EXAMPLE: 3-Level Prop Drilling (Should be ERROR)
+// ===========================================================================
+function ThreeLevelExample() {
+  const [errorData, setErrorData] = useState({ severity: 'high' });
+  
+  return (
+    <div>
+      <h2>Three Level Prop Drilling (ERROR)</h2>
+      <ThreeLevelFirst errorData={errorData} onErrorUpdate={setErrorData} />
+    </div>
+  );
+}
+
+function ThreeLevelFirst({ errorData, onErrorUpdate }) {
+  // ❌ Doesn't use errorData or onErrorUpdate - just passes them (1st drill)
+  return (
+    <div className="three-level-first">
+      <ThreeLevelSecond errorData={errorData} onErrorUpdate={onErrorUpdate} />
+    </div>
+  );
+}
+
+function ThreeLevelSecond({ errorData, onErrorUpdate }) {
+  // ❌ Also doesn't use them - just passes them (2nd drill)
+  return (
+    <div className="three-level-second">
+      <ThreeLevelThird errorData={errorData} onErrorUpdate={onErrorUpdate} />
+    </div>
+  );
+}
+
+function ThreeLevelThird({ errorData, onErrorUpdate }) {
+  // ✅ Finally uses the props after 2 intermediate components
+  return (
+    <div className="three-level-third">
+      <span>Severity: {errorData.severity}</span>
+      <button onClick={() => onErrorUpdate({ severity: 'low' })}>
+        Change Severity
+      </button>
     </div>
   );
 }

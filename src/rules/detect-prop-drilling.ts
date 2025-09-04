@@ -97,6 +97,7 @@ function analyzeComponent(path: NodePath, componentProps: Map<string, PropUsage[
     }
   }
 
+
   componentProps.set(componentName, propUsages);
 }
 
@@ -181,6 +182,7 @@ function analyzePropUsage(
   let isUsedInComponent = false;
   let isPassedToChild = false;
   const location = getNodeLocation(componentPath.node);
+  
 
   // Handle spread props specially
   if (propName.startsWith('...')) {
@@ -206,52 +208,51 @@ function analyzePropUsage(
     };
   }
 
-  // Track where the prop is used
+  // Track where the prop is used  
   componentPath.traverse({
     Identifier(idPath: NodePath<t.Identifier>) {
       if (idPath.node.name !== propName) return;
 
-      const parent = idPath.parent;
-
-      // Skip if it's a property key in object pattern (destructuring)
-      if (t.isObjectProperty(parent) && parent.key === idPath.node) {
+      // Skip if this is in the function parameters (destructuring)
+      // We're only interested in actual usage in the function body
+      const functionNode = componentPath.node as t.Function;
+      const paramPath = componentPath.get('params.0') as NodePath;
+      if (paramPath && paramPath.isAncestor(idPath)) {
+        // This identifier is within the parameter definition
         return;
       }
 
-      // Check if used in JSX as a prop
+      const parent = idPath.parent;
+
+      // Check immediate parent to see if this is being passed as JSX prop
+      if (t.isJSXExpressionContainer(parent)) {
+        const container = idPath.parentPath?.parent;
+        if (t.isJSXAttribute(container)) {
+          // This is <Component prop={propName} />
+          isPassedToChild = true;
+          return; // Don't mark as used
+        } else {
+          // This is <div>{propName}</div> or similar
+          isUsedInComponent = true;
+          return;
+        }
+      }
+
+      // Direct JSX attribute (rare but possible)
       if (t.isJSXAttribute(parent)) {
         isPassedToChild = true;
         return;
       }
 
-      // Check if used in JSXExpressionContainer within JSXAttribute
-      if (t.isJSXExpressionContainer(parent)) {
-        const grandParent = idPath.parentPath?.parent;
-        if (t.isJSXAttribute(grandParent)) {
-          isPassedToChild = true;
-          return;
-        }
-      }
-
-      // Check if used in JSX spread
+      // JSX spread
       if (t.isJSXSpreadAttribute(parent)) {
         isPassedToChild = true;
         return;
       }
 
-      // Check if it's actually being used in the component logic
-      // (not just passed to another component)
-      const jsxAncestor = idPath.findParent(
-        (p) => p.isJSXElement() || p.isJSXAttribute() || p.isJSXSpreadAttribute()
-      );
-
-      if (!jsxAncestor || (!jsxAncestor.isJSXAttribute() && !jsxAncestor.isJSXSpreadAttribute())) {
-        // Used in component logic (conditionals, calculations, etc.)
-        // But not if it's just being assigned in destructuring
-        if (!t.isObjectProperty(parent) || parent.value === idPath.node) {
-          isUsedInComponent = true;
-        }
-      }
+      // If we get here, it's being used in component logic
+      // (not in JSX or not as a prop)
+      isUsedInComponent = true;
     },
   });
 
@@ -327,6 +328,7 @@ function detectDrilledProps(componentProps: Map<string, PropUsage[]>): Map<strin
     // Add final consumers (components that actually use the prop)
     const consumers = usages.filter((u) => u.isUsedInComponent);
     allComponents.push(...consumers);
+    
 
     // We need at least one intermediate component that drills
     // and at least one usage total (either drilling or consuming)
