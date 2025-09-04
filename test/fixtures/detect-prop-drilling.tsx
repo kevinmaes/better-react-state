@@ -6,7 +6,7 @@ function _BadApp() {
   const [user, setUser] = useState({ name: 'John', role: 'admin' });
   const [theme, setTheme] = useState('light');
 
-  return <Dashboard user={user} onUserUpdate={setUser} theme={theme} onThemeChange={setTheme} />;
+  return <Dashboard user={user} onUserUpdate={setUser} theme={theme} _onThemeChange={setTheme} />;
 }
 
 // Dashboard doesn't use user or onUserUpdate - just passes them down
