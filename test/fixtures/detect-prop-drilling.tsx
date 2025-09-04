@@ -113,7 +113,7 @@ function _BadFormApp() {
 // Bad Pattern: DEEP Prop Drilling (3+ levels - should be ERROR)
 function _VeryBadApp() {
   const [deepData, setDeepData] = useState({ value: 'deep' });
-  
+
   return <Level1 deepData={deepData} onUpdate={setDeepData} />;
 }
 
@@ -140,9 +140,7 @@ function Level3({ deepData, onUpdate }) {
   return (
     <div className="level3">
       <span>{deepData.value}</span>
-      <button onClick={() => onUpdate({ value: 'updated' })}>
-        Update
-      </button>
+      <button onClick={() => onUpdate({ value: 'updated' })}>Update</button>
     </div>
   );
 }

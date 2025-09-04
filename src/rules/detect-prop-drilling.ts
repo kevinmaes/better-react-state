@@ -19,7 +19,8 @@ interface PropUsage {
  */
 export const detectPropDrillingRule: Rule = {
   name: 'detect-prop-drilling',
-  description: 'Props should not be drilled through multiple component layers (warning for 2 levels, error for 3+ levels)',
+  description:
+    'Props should not be drilled through multiple component layers (warning for 2 levels, error for 3+ levels)',
   severity: 'warning',
 
   check(ast: t.File, filename: string, _context?: ProjectContext): Issue[] {
@@ -69,9 +70,10 @@ export const detectPropDrillingRule: Rule = {
           file: filename,
           line: firstDriller.location.line,
           column: firstDriller.location.column,
-          suggestion: severity === 'error' 
-            ? `Critical: Use React Context or component composition to eliminate this deep prop drilling for "${propName}"`
-            : `Consider using React Context for "${propName}" or use component composition to avoid prop drilling`,
+          suggestion:
+            severity === 'error'
+              ? `Critical: Use React Context or component composition to eliminate this deep prop drilling for "${propName}"`
+              : `Consider using React Context for "${propName}" or use component composition to avoid prop drilling`,
           fixable: false,
         });
       }
@@ -317,13 +319,13 @@ function detectDrilledProps(componentProps: Map<string, PropUsage[]>): Map<strin
 
     // Count all components that handle this prop (drillers + final consumer)
     const allComponents: PropUsage[] = [];
-    
+
     // Add all drillers (components that pass but don't use)
-    const drillers = usages.filter(u => !u.isUsedInComponent && u.isPassedToChild);
+    const drillers = usages.filter((u) => !u.isUsedInComponent && u.isPassedToChild);
     allComponents.push(...drillers);
-    
+
     // Add final consumers (components that actually use the prop)
-    const consumers = usages.filter(u => u.isUsedInComponent);
+    const consumers = usages.filter((u) => u.isUsedInComponent);
     allComponents.push(...consumers);
 
     // We need at least one intermediate component that drills

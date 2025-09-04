@@ -26,10 +26,10 @@ describe('detectPropDrillingRule', () => {
     const issues = detectPropDrillingRule.check(ast, 'test.tsx');
 
     // FormWrapper → FormContainer → ActualForm (2 levels)
-    const formIssues = issues.filter((i) => 
-      i.message.includes('FormContainer') && i.message.includes('2 components')
+    const formIssues = issues.filter(
+      (i) => i.message.includes('FormContainer') && i.message.includes('2 components')
     );
-    
+
     expect(formIssues.length).toBeGreaterThan(0);
     expect(formIssues[0].severity).toBe('warning');
     expect(formIssues[0].message).toContain('prop drilling detected');
@@ -40,12 +40,12 @@ describe('detectPropDrillingRule', () => {
     const issues = detectPropDrillingRule.check(ast, 'test.tsx');
 
     // Should have different severities based on depth
-    const warnings = issues.filter(i => i.severity === 'warning');
-    const errors = issues.filter(i => i.severity === 'error'); 
+    const warnings = issues.filter((i) => i.severity === 'warning');
+    const errors = issues.filter((i) => i.severity === 'error');
 
     expect(warnings.length).toBeGreaterThan(0);
     expect(warnings[0].message).toContain('prop drilling detected');
-    
+
     // Error test will be verified manually with CLI since deep drilling
     // detection logic needs refinement - this test verifies the severity
     // logic works when depth >= 3 is detected
