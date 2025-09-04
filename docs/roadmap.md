@@ -26,11 +26,11 @@ Static analysis tool for identifying React state management antipatterns and pro
 
 ### Phase 3: Developer Experience
 
-| Rule                        | Description                              | Issue                                                            |
-| --------------------------- | ---------------------------------------- | ---------------------------------------------------------------- |
-| **Form State Patterns**     | Suggest form libraries for complex forms | [#42](https://github.com/kevinmaes/better-react-state/issues/42) |
-| **State Machine Detection** | Suggest FSM for complex state logic      | [#43](https://github.com/kevinmaes/better-react-state/issues/43) |
-| **Global State Overuse**    | Context at root with limited usage       | [#44](https://github.com/kevinmaes/better-react-state/issues/44) |
+| Rule                        | Description                              | Priority | Issue                                                            |
+| --------------------------- | ---------------------------------------- | -------- | ---------------------------------------------------------------- |
+| **Form State Patterns**     | Suggest form libraries for complex forms | Medium   | [#42](https://github.com/kevinmaes/better-react-state/issues/42) |
+| **State Machine Detection** | Suggest FSM for complex state logic      | Medium   | [#43](https://github.com/kevinmaes/better-react-state/issues/43) |
+| **Global State Overuse**    | Context at root with limited usage       | Low      | [#44](https://github.com/kevinmaes/better-react-state/issues/44) |
 
 ## Next Steps
 
