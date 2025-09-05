@@ -53,7 +53,7 @@ better-react-state examples/todo-app-antipatterns/src --format text
 ### 1. Todo App with Antipatterns
 
 - **Location**: `todo-app-antipatterns/`
-- **Issues**: 30 violations across all 6 rule types
+- **Issues**: Multiple violations across all 10 rule types
 - **Purpose**: Comprehensive demonstration of what NOT to do
 
 ### 2. Shopping Cart (Coming Soon)
