@@ -8,6 +8,7 @@ import { preferExplicitTransitionsRule } from './prefer-explicit-transitions.js'
 import { detectStateInUseEffectRule } from './detect-state-in-useeffect.js';
 import { detectPropDrillingRule } from './detect-prop-drilling.js';
 import { stateVsRefsRule } from './state-vs-refs.js';
+import { serverVsClientStateRule } from './server-vs-client-state.js';
 
 export const rules: Rule[] = [
   groupRelatedStateRule,
@@ -19,4 +20,5 @@ export const rules: Rule[] = [
   detectStateInUseEffectRule,
   detectPropDrillingRule,
   stateVsRefsRule,
+  serverVsClientStateRule,
 ];

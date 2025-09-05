@@ -12,6 +12,7 @@ Static analysis tool for identifying React state management antipatterns and pro
 | **Avoid State Duplication**     | Finds data stored in multiple state variables        | High     | [📖](best-practices.md#avoid-state-duplication)           |
 | **Detect State in useEffect**   | setState in useEffect indicating derived state       | High     | [📖](best-practices.md#detect-state-in-useeffect)         |
 | **Detect Prop Drilling**        | Props passed through 2+ components unchanged         | High     | [📖](best-practices.md#detect-prop-drilling)              |
+| **Server vs Client State**      | API data in useState vs React Query/SWR              | High     | [📖](best-practices.md#server-vs-client-state)            |
 | **Prefer Explicit Transitions** | Suggests useReducer for complex updates              | Medium   | [📖](best-practices.md#prefer-explicit-state-transitions) |
 | **Avoid Deeply Nested State**   | Warns about state nested >2 levels                   | Medium   | [📖](best-practices.md#avoid-deeply-nested-state)         |
 | **State vs Refs**               | State that doesn't affect render output              | Medium   | [📖](best-practices.md#state-vs-refs)                     |
@@ -19,10 +20,6 @@ Static analysis tool for identifying React state management antipatterns and pro
 ## 🚧 Future Rules
 
 ### Phase 2: Architecture & Performance
-
-| Rule                       | Description                             | Issue                                                            |
-| -------------------------- | --------------------------------------- | ---------------------------------------------------------------- |
-| **Server vs Client State** | API data in useState vs React Query/SWR | [#40](https://github.com/kevinmaes/better-react-state/issues/40) |
 
 ### Phase 3: Developer Experience
 
@@ -70,4 +67,4 @@ Target rules: All implemented rules + high-priority future rules
 
 ---
 
-_Last updated: 2025-09-04_
+_Last updated: 2025-01-04_
