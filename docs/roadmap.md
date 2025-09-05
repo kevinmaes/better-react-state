@@ -13,17 +13,17 @@ Static analysis tool for identifying React state management antipatterns and pro
 | **Detect State in useEffect**   | setState in useEffect indicating derived state       | High     | [📖](best-practices.md#detect-state-in-useeffect)         |
 | **Detect Prop Drilling**        | Props passed through 2+ components unchanged         | High     | [📖](best-practices.md#detect-prop-drilling)              |
 | **Server vs Client State**      | API data in useState vs React Query/SWR              | High     | [📖](best-practices.md#server-vs-client-state)            |
+| **Form State Patterns**         | Suggest form libraries for complex forms             | Medium   | [📖](best-practices.md#form-state-patterns)               |
 | **Prefer Explicit Transitions** | Suggests useReducer for complex updates              | Medium   | [📖](best-practices.md#prefer-explicit-state-transitions) |
 | **Avoid Deeply Nested State**   | Warns about state nested >2 levels                   | Medium   | [📖](best-practices.md#avoid-deeply-nested-state)         |
 | **State vs Refs**               | State that doesn't affect render output              | Medium   | [📖](best-practices.md#state-vs-refs)                     |
 
 ## 🚧 Future Rules
 
-| Rule                        | Description                              | Priority | Issue                                                            |
-| --------------------------- | ---------------------------------------- | -------- | ---------------------------------------------------------------- |
-| **Form State Patterns**     | Suggest form libraries for complex forms | Medium   | [#42](https://github.com/kevinmaes/better-react-state/issues/42) |
-| **State Machine Detection** | Suggest FSM for complex state logic      | Medium   | [#43](https://github.com/kevinmaes/better-react-state/issues/43) |
-| **Global State Overuse**    | Context at root with limited usage       | Low      | [#44](https://github.com/kevinmaes/better-react-state/issues/44) |
+| Rule                        | Description                         | Priority | Issue                                                            |
+| --------------------------- | ----------------------------------- | -------- | ---------------------------------------------------------------- |
+| **State Machine Detection** | Suggest FSM for complex state logic | Medium   | [#43](https://github.com/kevinmaes/better-react-state/issues/43) |
+| **Global State Overuse**    | Context at root with limited usage  | Low      | [#44](https://github.com/kevinmaes/better-react-state/issues/44) |
 
 ## Next Steps
 
