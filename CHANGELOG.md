@@ -1,5 +1,21 @@
 # better-react-state
 
+## 0.5.0
+
+### Minor Changes
+
+- 0c055db: Implement detection of excessive prop drilling
+- 996495d: Detect setState in useEffect hooks
+- 2fc805c: Add checks for form state patterns
+- 8203037: Add checks for places where we're managing server state in the components instead of delegating to a middle layer that's more closely aligned with the server state
+- 7a1925f: Add support for checking for state with useState that doesn't require a re-render and suggest useRef instead
+
+### Patch Changes
+
+- 82b84e7: Fix "any" types
+- 4ce313b: Improve auto-update of npm version badge on README
+- 3a9187b: Update documentation after implementing useEffect checks. Delete old planning docs
+
 ## 0.4.2
 
 ### Patch Changes
