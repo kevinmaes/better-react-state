@@ -10,32 +10,20 @@ Static analysis tool for identifying React state management antipatterns and pro
 | **Avoid Redundant State**       | Identifies state that should be derived              | High     | [📖](best-practices.md#avoid-redundant-state)             |
 | **Group Related State**         | Detects separate useState for related data           | High     | [📖](best-practices.md#group-related-state)               |
 | **Avoid State Duplication**     | Finds data stored in multiple state variables        | High     | [📖](best-practices.md#avoid-state-duplication)           |
+| **Detect State in useEffect**   | setState in useEffect indicating derived state       | High     | [📖](best-practices.md#detect-state-in-useeffect)         |
+| **Detect Prop Drilling**        | Props passed through 2+ components unchanged         | High     | [📖](best-practices.md#detect-prop-drilling)              |
+| **Server vs Client State**      | API data in useState vs React Query/SWR              | High     | [📖](best-practices.md#server-vs-client-state)            |
+| **Form State Patterns**         | Suggest form libraries for complex forms             | Medium   | [📖](best-practices.md#form-state-patterns)               |
 | **Prefer Explicit Transitions** | Suggests useReducer for complex updates              | Medium   | [📖](best-practices.md#prefer-explicit-state-transitions) |
 | **Avoid Deeply Nested State**   | Warns about state nested >2 levels                   | Medium   | [📖](best-practices.md#avoid-deeply-nested-state)         |
+| **State vs Refs**               | State that doesn't affect render output              | Medium   | [📖](best-practices.md#state-vs-refs)                     |
 
 ## 🚧 Future Rules
 
-### Phase 1: High-Value Rules
-
-| Rule                     | Description                                    | Issue                                                            |
-| ------------------------ | ---------------------------------------------- | ---------------------------------------------------------------- |
-| **Detect Prop Drilling** | Props passed through 2+ components unchanged   | [#38](https://github.com/kevinmaes/better-react-state/issues/38) |
-| **State in useEffect**   | setState in useEffect indicating derived state | [#39](https://github.com/kevinmaes/better-react-state/issues/39) |
-
-### Phase 2: Architecture & Performance
-
-| Rule                       | Description                             | Issue                                                            |
-| -------------------------- | --------------------------------------- | ---------------------------------------------------------------- |
-| **Server vs Client State** | API data in useState vs React Query/SWR | [#40](https://github.com/kevinmaes/better-react-state/issues/40) |
-| **State vs Refs**          | State that doesn't affect render        | [#41](https://github.com/kevinmaes/better-react-state/issues/41) |
-
-### Phase 3: Developer Experience
-
-| Rule                        | Description                              | Issue                                                            |
-| --------------------------- | ---------------------------------------- | ---------------------------------------------------------------- |
-| **Form State Patterns**     | Suggest form libraries for complex forms | [#42](https://github.com/kevinmaes/better-react-state/issues/42) |
-| **State Machine Detection** | Suggest FSM for complex state logic      | [#43](https://github.com/kevinmaes/better-react-state/issues/43) |
-| **Global State Overuse**    | Context at root with limited usage       | [#44](https://github.com/kevinmaes/better-react-state/issues/44) |
+| Rule                        | Description                         | Priority | Issue                                                            |
+| --------------------------- | ----------------------------------- | -------- | ---------------------------------------------------------------- |
+| **State Machine Detection** | Suggest FSM for complex state logic | Medium   | [#43](https://github.com/kevinmaes/better-react-state/issues/43) |
+| **Global State Overuse**    | Context at root with limited usage  | Low      | [#44](https://github.com/kevinmaes/better-react-state/issues/44) |
 
 ## Next Steps
 
@@ -75,4 +63,4 @@ Target rules: All implemented rules + high-priority future rules
 
 ---
 
-_Last updated: 2025-09_
+_Last updated: 2025-01-04_

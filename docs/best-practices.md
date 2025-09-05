@@ -26,6 +26,8 @@ Each piece of data should have one authoritative location. Derive everything els
 4. [Group Related State](#group-related-state)
 5. [Avoid State Duplication](#avoid-state-duplication)
 6. [Avoid Deeply Nested State](#avoid-deeply-nested-state)
+7. [Detect State in useEffect](#detect-state-in-useeffect)
+8. [Form State Patterns](#form-state-patterns)
 
 ## 1. Avoid State Contradictions
 
@@ -532,6 +534,150 @@ function App() {
 }
 ```
 
+## 7. Detect State in useEffect
+
+### Problem
+
+Using `setState` inside `useEffect` to store derived values causes unnecessary renders and complexity. This is a common misunderstanding where developers treat `useEffect` as a place to compute values, when they should be computed during render.
+
+### Solution
+
+Compute derived values during render or use `useMemo` for expensive computations. Only use `useEffect` for genuine side effects like API calls, subscriptions, or DOM manipulations.
+
+### Examples
+
+#### ❌ Bad: Storing derived state in useEffect
+
+```javascript
+function ProductList({ products }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState([]);
+
+  // Unnecessary state and extra render cycle
+  useEffect(() => {
+    const filtered = products.filter((p) => p.name.includes(searchTerm));
+    setFilteredProducts(filtered);
+  }, [products, searchTerm]);
+
+  return (
+    <div>
+      {filteredProducts.map((p) => (
+        <Product key={p.id} {...p} />
+      ))}
+    </div>
+  );
+}
+```
+
+#### ✅ Good: Compute during render
+
+```javascript
+function ProductList({ products }) {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Computed during render - no extra state or renders
+  const filteredProducts = products.filter((p) => p.name.includes(searchTerm));
+
+  return (
+    <div>
+      {filteredProducts.map((p) => (
+        <Product key={p.id} {...p} />
+      ))}
+    </div>
+  );
+}
+```
+
+#### ✅ Good: Use useMemo for expensive computations
+
+```javascript
+function ProductList({ products }) {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Memoized for performance if computation is expensive
+  const filteredProducts = useMemo(
+    () => products.filter((p) => p.name.includes(searchTerm)),
+    [products, searchTerm]
+  );
+
+  return (
+    <div>
+      {filteredProducts.map((p) => (
+        <Product key={p.id} {...p} />
+      ))}
+    </div>
+  );
+}
+```
+
+### Common Antipatterns
+
+1. **Storing formatted values**
+
+   ```javascript
+   // ❌ Bad
+   useEffect(() => {
+     setFormattedDate(date.toLocaleDateString());
+   }, [date]);
+
+   // ✅ Good - compute during render
+   const formattedDate = date.toLocaleDateString();
+   ```
+
+2. **Storing computed totals/counts**
+
+   ```javascript
+   // ❌ Bad
+   useEffect(() => {
+     setTotal(items.reduce((sum, item) => sum + item.price, 0));
+   }, [items]);
+
+   // ✅ Good - compute during render or useMemo
+   const total = useMemo(() => items.reduce((sum, item) => sum + item.price, 0), [items]);
+   ```
+
+3. **Duplicating props in state**
+
+   ```javascript
+   // ❌ Bad
+   useEffect(() => {
+     setLocalValue(propValue);
+   }, [propValue]);
+
+   // ✅ Good - use the prop directly
+   // If you need local modifications, use a different pattern
+   ```
+
+### Legitimate Uses of setState in useEffect
+
+`useEffect` with `setState` IS appropriate for:
+
+- **External data fetching**: API calls, database queries
+- **Browser/DOM APIs**: window size, scroll position, localStorage
+- **Subscriptions**: WebSockets, event listeners, observables
+- **Timers**: setTimeout, setInterval
+- **External library integration**: Third-party SDK initialization
+
+```javascript
+// ✅ Good: External data source
+useEffect(() => {
+  fetchUserData(userId).then(setUserData);
+}, [userId]);
+
+// ✅ Good: Browser API subscription
+useEffect(() => {
+  const handleResize = () => {
+    setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+  };
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
+```
+
+### Key Principle
+
+**If you can compute it during render without side effects, don't put it in useEffect.**
+
 ## Additional Best Practices
 
 ### Use State Sparingly
@@ -591,6 +737,372 @@ function ThemeToggle() {
 }
 ```
 
+## 8. Form State Patterns
+
+### Problem
+
+Complex forms with many individual `useState` calls become difficult to manage, especially when they include validation, reset logic, and multiple related fields. This leads to:
+
+- Manual reset functions with many setter calls
+- Scattered validation state across multiple variables
+- Performance issues due to frequent re-renders
+- Difficult state synchronization between related form fields
+
+### Solution
+
+For complex forms (7+ state variables), use form libraries or unified state management approaches instead of individual `useState` calls.
+
+### Examples
+
+#### ❌ Bad: Many individual useState calls
+
+```typescript
+function RegistrationForm() {
+  // Too many individual state variables
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [zipCode, setZipCode] = useState('');
+
+  // Scattered validation states
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [touchedEmail, setTouchedEmail] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const resetForm = () => {
+    // Manual reset of many fields
+    setFirstName('');
+    setLastName('');
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+    setPhone('');
+    setAddress('');
+    setCity('');
+    setZipCode('');
+    setEmailError('');
+    setPasswordError('');
+    setTouchedEmail(false);
+  };
+
+  return (
+    <form>
+      <input value={firstName} onChange={e => setFirstName(e.target.value)} />
+      <input value={lastName} onChange={e => setLastName(e.target.value)} />
+      <input value={email} onChange={e => setEmail(e.target.value)} />
+      {/* ... many more inputs */}
+    </form>
+  );
+}
+```
+
+#### ✅ Good: React Hook Form (Recommended for Complex Forms)
+
+```typescript
+import { useForm } from 'react-hook-form';
+
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  phone: string;
+  address: string;
+  city: string;
+  zipCode: string;
+}
+
+function RegistrationForm() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset
+  } = useForm<FormData>();
+
+  const onSubmit = async (data: FormData) => {
+    // Handle form submission
+    console.log(data);
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <input
+        {...register('firstName', { required: 'First name is required' })}
+      />
+      {errors.firstName && <span>{errors.firstName.message}</span>}
+
+      <input
+        {...register('email', {
+          required: 'Email is required',
+          pattern: {
+            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+            message: 'Invalid email format'
+          }
+        })}
+      />
+      {errors.email && <span>{errors.email.message}</span>}
+
+      <input
+        type="password"
+        {...register('password', {
+          required: 'Password is required',
+          minLength: { value: 8, message: 'Password must be 8+ characters' }
+        })}
+      />
+      {errors.password && <span>{errors.password.message}</span>}
+
+      {/* ... other fields */}
+
+      <button type="button" onClick={() => reset()}>Reset</button>
+      <button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? 'Submitting...' : 'Submit'}
+      </button>
+    </form>
+  );
+}
+```
+
+#### ✅ Good: TanStack Form (Type-Safe Alternative)
+
+```typescript
+import { useForm } from '@tanstack/react-form';
+
+function RegistrationForm() {
+  const form = useForm({
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      phone: '',
+      address: '',
+      city: '',
+      zipCode: ''
+    },
+    onSubmit: async ({ value }) => {
+      console.log('Form data:', value);
+    }
+  });
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        form.handleSubmit();
+      }}
+    >
+      <form.Field name="firstName">
+        {(field) => (
+          <div>
+            <input
+              value={field.state.value}
+              onBlur={field.handleBlur}
+              onChange={(e) => field.handleChange(e.target.value)}
+            />
+            {field.state.meta.errors && (
+              <span>{field.state.meta.errors}</span>
+            )}
+          </div>
+        )}
+      </form.Field>
+
+      <form.Field
+        name="email"
+        validators={{
+          onChange: ({ value }) =>
+            !value.includes('@') ? 'Invalid email' : undefined
+        }}
+      >
+        {(field) => (
+          <div>
+            <input
+              type="email"
+              value={field.state.value}
+              onBlur={field.handleBlur}
+              onChange={(e) => field.handleChange(e.target.value)}
+            />
+            {field.state.meta.errors && (
+              <span>{field.state.meta.errors}</span>
+            )}
+          </div>
+        )}
+      </form.Field>
+
+      {/* ... other fields */}
+
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+#### ✅ Good: Grouped State (For Simpler Forms)
+
+```typescript
+interface FormState {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  phone: string;
+  address: string;
+  city: string;
+  zipCode: string;
+}
+
+const initialFormState: FormState = {
+  firstName: '',
+  lastName: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  phone: '',
+  address: '',
+  city: '',
+  zipCode: ''
+};
+
+function RegistrationForm() {
+  const [formData, setFormData] = useState<FormState>(initialFormState);
+  const [errors, setErrors] = useState<Partial<FormState>>({});
+  const [touched, setTouched] = useState<Partial<Record<keyof FormState, boolean>>>({});
+
+  const updateField = (field: keyof FormState, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    setTouched(prev => ({ ...prev, [field]: true }));
+  };
+
+  const resetForm = () => {
+    setFormData(initialFormState);
+    setErrors({});
+    setTouched({});
+  };
+
+  return (
+    <form>
+      <input
+        value={formData.firstName}
+        onChange={(e) => updateField('firstName', e.target.value)}
+      />
+      <input
+        value={formData.lastName}
+        onChange={(e) => updateField('lastName', e.target.value)}
+      />
+      <input
+        type="email"
+        value={formData.email}
+        onChange={(e) => updateField('email', e.target.value)}
+      />
+      {/* ... other fields */}
+
+      <button type="button" onClick={resetForm}>Reset</button>
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+#### ✅ Good: useReducer (For Complex State Logic)
+
+```typescript
+type FormAction =
+  | { type: 'UPDATE_FIELD'; field: keyof FormState; value: string }
+  | { type: 'SET_ERROR'; field: keyof FormState; error: string }
+  | { type: 'CLEAR_ERROR'; field: keyof FormState }
+  | { type: 'RESET' }
+  | { type: 'SET_SUBMITTING'; submitting: boolean };
+
+interface FormReducerState extends FormState {
+  errors: Partial<FormState>;
+  touched: Partial<Record<keyof FormState, boolean>>;
+  isSubmitting: boolean;
+}
+
+const initialState: FormReducerState = {
+  ...initialFormState,
+  errors: {},
+  touched: {},
+  isSubmitting: false
+};
+
+function formReducer(state: FormReducerState, action: FormAction): FormReducerState {
+  switch (action.type) {
+    case 'UPDATE_FIELD':
+      return {
+        ...state,
+        [action.field]: action.value,
+        touched: { ...state.touched, [action.field]: true }
+      };
+    case 'SET_ERROR':
+      return {
+        ...state,
+        errors: { ...state.errors, [action.field]: action.error }
+      };
+    case 'CLEAR_ERROR':
+      const newErrors = { ...state.errors };
+      delete newErrors[action.field];
+      return { ...state, errors: newErrors };
+    case 'RESET':
+      return initialState;
+    case 'SET_SUBMITTING':
+      return { ...state, isSubmitting: action.submitting };
+    default:
+      return state;
+  }
+}
+
+function RegistrationForm() {
+  const [state, dispatch] = useReducer(formReducer, initialState);
+
+  const updateField = (field: keyof FormState, value: string) => {
+    dispatch({ type: 'UPDATE_FIELD', field, value });
+  };
+
+  const resetForm = () => {
+    dispatch({ type: 'RESET' });
+  };
+
+  return (
+    <form>
+      <input
+        value={state.firstName}
+        onChange={(e) => updateField('firstName', e.target.value)}
+      />
+      {/* ... other fields */}
+      <button type="button" onClick={resetForm}>Reset</button>
+      <button type="submit" disabled={state.isSubmitting}>Submit</button>
+    </form>
+  );
+}
+```
+
+### When to Use Each Approach
+
+- **React Hook Form**: Best for most complex forms (10+ fields). Excellent performance, built-in validation, great TypeScript support
+- **TanStack Form**: Great for type-safe forms with advanced features. Framework agnostic
+- **Conform**: Ideal for progressive enhancement and SSR scenarios
+- **Grouped State**: Good for medium complexity forms (5-8 fields) with simple validation
+- **useReducer**: Best when form has complex state transitions and business logic
+
+### Benefits
+
+- **Easier Reset**: Single function call instead of multiple setters
+- **Better Performance**: Fewer re-renders, optimized updates
+- **Built-in Validation**: Form libraries provide comprehensive validation
+- **Better Accessibility**: Form libraries handle focus management and ARIA attributes
+- **Less Boilerplate**: Reduce repetitive state management code
+- **Type Safety**: Better TypeScript integration
+
 ## Summary
 
 Following these patterns will help you:
@@ -607,3 +1119,4 @@ When in doubt, ask yourself:
 3. Can these states contradict each other?
 4. Should these related values be grouped?
 5. Is this state structure too deeply nested?
+6. Does this form have too many individual state variables?

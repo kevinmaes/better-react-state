@@ -1,7 +1,7 @@
 # better-react-state
 
 [![CI](https://github.com/kevinmaes/better-react-state/actions/workflows/ci.yml/badge.svg)](https://github.com/kevinmaes/better-react-state/actions/workflows/ci.yml)
-[![npm version](https://badge.fury.io/js/better-react-state.svg)](https://www.npmjs.com/package/better-react-state)
+[![npm version](https://img.shields.io/npm/v/better-react-state.svg)](https://www.npmjs.com/package/better-react-state)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A tool to analyze and fix React state management antipatterns.
@@ -37,14 +37,18 @@ npx better-react-state --strict
 
 ## What it detects
 
-Analyzes React components for 6 common state management antipatterns:
+Analyzes React components for 10 common state management antipatterns:
 
 - **Avoid State Contradictions** - Boolean states that create impossible UI states
 - **Avoid Redundant State** - State that can be computed from existing state
 - **Group Related State** - Multiple `useState` calls that should be combined
 - **Avoid State Duplication** - Same data stored in multiple places
+- **Detect State in useEffect** - setState in useEffect indicating derived state
+- **Detect Prop Drilling** - Props passed through 2+ components unchanged
+- **Server vs Client State** - API data in useState vs React Query/SWR
 - **Prefer Explicit Transitions** - Implicit state changes that need reducer patterns
 - **Avoid Deeply Nested State** - State objects nested more than 2 levels deep
+- **State vs Refs** - State that doesn't affect render output
 
 Each rule includes intelligent suggestions and considers whether XState is available in your project for enhanced recommendations.
 

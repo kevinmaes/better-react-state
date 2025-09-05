@@ -6,7 +6,7 @@ export function BadShoppingCart() {
   const [totalPrice, setTotalPrice] = useState(0);
   const [itemCount, setItemCount] = useState(0);
 
-  const _addItem = (item: { id: number; price: number }) => {
+  const addItem = (item: { id: number; price: number }) => {
     const newItems = [...items, item];
     setItems(newItems);
     setTotalPrice(newItems.reduce((sum, item) => sum + item.price, 0));
@@ -25,9 +25,9 @@ export function BadShoppingCart() {
 export function BadDateDisplay() {
   const [date, setDate] = useState(new Date());
   const [formattedDate, setFormattedDate] = useState(date.toLocaleDateString());
-  const [_dayOfWeek, setDayOfWeek] = useState(date.getDay());
+  const [dayOfWeek, setDayOfWeek] = useState(date.getDay());
 
-  const _updateDate = (newDate: Date) => {
+  const updateDate = (newDate: Date) => {
     setDate(newDate);
     setFormattedDate(newDate.toLocaleDateString());
     setDayOfWeek(newDate.getDay());
@@ -44,7 +44,7 @@ export function GoodShoppingCart() {
   const totalPrice = items.reduce((sum, item) => sum + item.price, 0);
   const itemCount = items.length;
 
-  const _addItem = (item: { id: number; price: number }) => {
+  const addItem = (item: { id: number; price: number }) => {
     setItems([...items, item]);
   };
 

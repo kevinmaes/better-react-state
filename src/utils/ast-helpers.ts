@@ -4,7 +4,7 @@ import * as t from '@babel/types';
 export interface StateCall {
   name: string;
   setterName: string;
-  initialValue: any;
+  initialValue: t.Expression | t.SpreadElement | t.ArgumentPlaceholder | null | undefined;
   node: t.CallExpression;
   path: NodePath<t.CallExpression>;
 }
@@ -81,4 +81,43 @@ export function getNodeLocation(node: t.Node): { line: number; column: number } 
     line: node.loc?.start.line || 0,
     column: node.loc?.start.column || 0,
   };
+}
+
+export function findUseEffectCalls(componentPath: NodePath): Array<{
+  node: t.CallExpression;
+  path: NodePath<t.CallExpression>;
+  callback: t.Node | null;
+  dependencies: t.Node | null;
+}> {
+  const effectCalls: Array<{
+    node: t.CallExpression;
+    path: NodePath<t.CallExpression>;
+    callback: t.Node | null;
+    dependencies: t.Node | null;
+  }> = [];
+
+  componentPath.traverse({
+    CallExpression(path) {
+      const { node } = path;
+
+      // Check for useEffect or React.useEffect
+      if (
+        (t.isIdentifier(node.callee) && node.callee.name === 'useEffect') ||
+        (t.isMemberExpression(node.callee) &&
+          t.isIdentifier(node.callee.object) &&
+          node.callee.object.name === 'React' &&
+          t.isIdentifier(node.callee.property) &&
+          node.callee.property.name === 'useEffect')
+      ) {
+        effectCalls.push({
+          node,
+          path,
+          callback: node.arguments[0] || null,
+          dependencies: node.arguments[1] || null,
+        });
+      }
+    },
+  });
+
+  return effectCalls;
 }

@@ -1,8 +1,7 @@
 import { glob } from 'glob';
 import { readFile } from 'fs/promises';
 import { parse } from '@babel/parser';
-import traverse from '@babel/traverse';
-import { type NodePath } from '@babel/traverse';
+import { getTraverse, type NodePath } from '../utils/traverse-helper.js';
 import path from 'path';
 import type { AnalysisOptions, AnalysisResult, Issue, ProjectContext } from '../types.js';
 import { rules } from '../rules/index.js';
@@ -63,8 +62,8 @@ export const analyzer = {
 
         // Count React components in this file
         let componentsInFile = 0;
-        const traverseFn = typeof traverse === 'function' ? traverse : (traverse as any).default;
-        traverseFn(ast, {
+        const traverse = getTraverse();
+        traverse(ast, {
           FunctionDeclaration(path: NodePath) {
             if (isReactComponent(path)) componentsInFile++;
           },
