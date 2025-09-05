@@ -19,10 +19,6 @@ Static analysis tool for identifying React state management antipatterns and pro
 
 ## 🚧 Future Rules
 
-### Phase 2: Architecture & Performance
-
-### Phase 3: Developer Experience
-
 | Rule                        | Description                              | Priority | Issue                                                            |
 | --------------------------- | ---------------------------------------- | -------- | ---------------------------------------------------------------- |
 | **Form State Patterns**     | Suggest form libraries for complex forms | Medium   | [#42](https://github.com/kevinmaes/better-react-state/issues/42) |
