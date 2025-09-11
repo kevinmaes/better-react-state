@@ -42,7 +42,8 @@ function checkComponent(path: NodePath, filename: string, issues: Issue[]): void
   const useStateCalls = findUseStateCalls(path);
 
   for (const stateCall of useStateCalls) {
-    if (shouldUseRef(stateCall, path)) {
+    const refAnalysis = analyzeIfShouldUseRef(stateCall, path);
+    if (refAnalysis.shouldUseRef) {
       const location = getNodeLocation(stateCall.node);
       const performanceImpact = getPerformanceImpact(stateCall.name, path);
 
@@ -55,32 +56,93 @@ function checkComponent(path: NodePath, filename: string, issues: Issue[]): void
         column: location.column,
         suggestion: `Use useRef instead of useState for '${stateCall.name}' to prevent unnecessary re-renders. ${performanceImpact}`,
         fixable: true,
+        confidence: refAnalysis.confidence,
       });
     }
   }
 }
 
-function shouldUseRef(
+interface RefAnalysis {
+  shouldUseRef: boolean;
+  confidence: 'high' | 'medium' | 'low';
+  reasons: string[];
+}
+
+function analyzeIfShouldUseRef(
   stateCall: { name: string; setterName: string },
   componentPath: NodePath
-): boolean {
+): RefAnalysis {
   const { name: stateName } = stateCall;
+  const reasons: string[] = [];
+  let confidenceScore = 0;
 
   // Check if state is used in JSX (render output)
   if (isUsedInRender(stateName, componentPath)) {
-    return false;
+    return { shouldUseRef: false, confidence: 'high', reasons: ['Used in render output'] };
   }
 
   // Check if state has naming patterns suggesting non-render usage
-  if (hasNonRenderNamingPattern(stateName)) {
-    return true;
+  const hasNonRenderPattern = hasNonRenderNamingPattern(stateName);
+  if (hasNonRenderPattern) {
+    reasons.push('Naming pattern suggests non-render usage');
+    confidenceScore += 30;
   }
 
   // Check if state is only used in effects or event handlers
   const usageContext = getStateUsageContext(stateName, componentPath);
 
-  // If only used in non-render contexts, suggest useRef
-  return usageContext.onlyInNonRenderContexts && usageContext.usageCount > 0;
+  if (usageContext.onlyInNonRenderContexts && usageContext.usageCount > 0) {
+    reasons.push('Only used in non-render contexts');
+    confidenceScore += 40;
+
+    // Higher confidence if used multiple times in non-render contexts
+    if (usageContext.usageCount > 2) {
+      confidenceScore += 20;
+    }
+
+    // Check specific contexts
+    if (usageContext.contexts.includes('effect')) {
+      reasons.push('Used only in effects');
+      confidenceScore += 10;
+    }
+    if (usageContext.contexts.includes('handler')) {
+      reasons.push('Used only in event handlers');
+      confidenceScore += 10;
+    }
+  } else if (usageContext.usageCount === 0) {
+    // State is never used - very high confidence it should be removed or use ref
+    reasons.push('State is never used');
+    confidenceScore = 100;
+  } else {
+    // Not enough evidence
+    return { shouldUseRef: false, confidence: 'low', reasons: [] };
+  }
+
+  // Determine confidence level
+  let confidence: 'high' | 'medium' | 'low';
+  if (confidenceScore >= 80) {
+    confidence = 'high';
+  } else if (confidenceScore >= 50) {
+    confidence = 'medium';
+  } else if (confidenceScore >= 30) {
+    confidence = 'low';
+  } else {
+    return { shouldUseRef: false, confidence: 'low', reasons: [] };
+  }
+
+  return {
+    shouldUseRef: true,
+    confidence,
+    reasons,
+  };
+}
+
+function _shouldUseRef(
+  stateCall: { name: string; setterName: string },
+  componentPath: NodePath
+): boolean {
+  const analysis = analyzeIfShouldUseRef(stateCall, componentPath);
+  return analysis.shouldUseRef;
 }
 
 function isUsedInRender(stateName: string, componentPath: NodePath): boolean {
@@ -105,6 +167,21 @@ function isUsedInRender(stateName: string, componentPath: NodePath): boolean {
       }
     },
   });
+
+  // Check if state is used in computed values that affect rendering
+  if (!usedInRender) {
+    usedInRender = isUsedInComputedValues(stateName, componentPath);
+  }
+
+  // Check if state is passed to Context Provider
+  if (!usedInRender) {
+    usedInRender = isPassedToContextProvider(stateName, componentPath);
+  }
+
+  // Check if state is used in conditional rendering
+  if (!usedInRender) {
+    usedInRender = isUsedInConditionalRendering(stateName, componentPath);
+  }
 
   return usedInRender;
 }
@@ -231,6 +308,122 @@ function getIdentifierContext(identifierPath: NodePath, componentPath: NodePath)
   }
 
   return 'other';
+}
+
+function isUsedInComputedValues(stateName: string, componentPath: NodePath): boolean {
+  let usedInComputed = false;
+
+  componentPath.traverse({
+    VariableDeclarator(path) {
+      // Check if this variable uses our state
+      let usesState = false;
+      path.traverse({
+        Identifier(idPath) {
+          if (idPath.node.name === stateName && !idPath.isBindingIdentifier()) {
+            usesState = true;
+          }
+        },
+      });
+
+      if (usesState && t.isIdentifier(path.node.id)) {
+        const computedName = path.node.id.name;
+        // Now check if this computed value is used in render
+        if (isUsedInRender(computedName, componentPath)) {
+          usedInComputed = true;
+        }
+      }
+    },
+  });
+
+  return usedInComputed;
+}
+
+function isPassedToContextProvider(stateName: string, componentPath: NodePath): boolean {
+  let passedToContext = false;
+
+  componentPath.traverse({
+    JSXElement(path) {
+      const opening = path.node.openingElement;
+      if (t.isJSXIdentifier(opening.name)) {
+        const elementName = opening.name.name;
+        // Check if it's a Context Provider
+        if (elementName.includes('Provider') || elementName.includes('Context')) {
+          // Check if state is passed as prop or in value
+          opening.attributes.forEach((attr) => {
+            if (t.isJSXAttribute(attr) && attr.value) {
+              // Check if the state is referenced in this attribute
+              path.traverse({
+                Identifier(idPath) {
+                  if (idPath.node.name === stateName && !idPath.isBindingIdentifier()) {
+                    passedToContext = true;
+                  }
+                },
+              });
+            }
+          });
+        }
+      }
+    },
+  });
+
+  return passedToContext;
+}
+
+function isUsedInConditionalRendering(stateName: string, componentPath: NodePath): boolean {
+  let usedInConditional = false;
+
+  componentPath.traverse({
+    ConditionalExpression(path) {
+      // Check if state is used in the test condition
+      let stateInCondition = false;
+      path.get('test').traverse({
+        Identifier(idPath) {
+          if (idPath.node.name === stateName && !idPath.isBindingIdentifier()) {
+            stateInCondition = true;
+          }
+        },
+      });
+
+      if (stateInCondition) {
+        // Check if this conditional is in the render path
+        let parent: NodePath | null = path.parentPath;
+        while (parent && parent !== componentPath) {
+          if (parent.isReturnStatement()) {
+            usedInConditional = true;
+            break;
+          }
+          parent = parent.parentPath;
+        }
+      }
+    },
+    LogicalExpression(path) {
+      // Check && and || operators used for conditional rendering
+      if (path.node.operator === '&&' || path.node.operator === '||') {
+        let stateInExpression = false;
+        path.traverse({
+          Identifier(idPath) {
+            if (idPath.node.name === stateName && !idPath.isBindingIdentifier()) {
+              stateInExpression = true;
+            }
+          },
+        });
+
+        if (stateInExpression) {
+          // Check if this is in render context
+          let parent: NodePath | null = path.parentPath;
+          while (parent && parent !== componentPath) {
+            if (parent.isReturnStatement() || parent.isJSXElement()) {
+              usedInConditional = true;
+              break;
+            }
+            parent = parent.parentPath;
+          }
+        }
+      }
+    },
+  });
+
+  return usedInConditional;
 }
 
 function getPerformanceImpact(stateName: string, componentPath: NodePath): string {
