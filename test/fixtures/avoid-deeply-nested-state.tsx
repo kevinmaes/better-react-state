@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from 'react';
 
 // Example 1: Deeply nested user profile

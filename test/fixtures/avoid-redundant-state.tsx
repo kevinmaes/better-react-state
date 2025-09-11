@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from 'react';
 
 // Example 1: Storing computed values

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, createContext, useContext } from 'react';
 
 // Bad Pattern: Prop Drilling through multiple layers
