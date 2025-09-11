@@ -18,6 +18,7 @@ export interface Issue {
   endColumn?: number;
   suggestion?: string;
   fixable?: boolean;
+  confidence?: 'high' | 'medium' | 'low';
 }
 
 export interface ProjectContext {

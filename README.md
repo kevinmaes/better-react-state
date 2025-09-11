@@ -52,6 +52,21 @@ Analyzes React components for 10 common state management antipatterns:
 
 Each rule includes intelligent suggestions and considers whether XState is available in your project for enhanced recommendations.
 
+### Confidence Scoring
+
+All issues now include confidence scores to help prioritize fixes:
+
+- **High confidence** - Strong evidence of an antipattern
+- **Medium confidence** - Likely issue but may have legitimate use cases
+- **Low confidence** - Potential issue, manual review recommended
+
+The analyzer uses advanced context analysis to reduce false positives by:
+
+- Tracking state usage in Context Providers
+- Analyzing computed values and conditional rendering
+- Distinguishing UI state from data state
+- Recognizing legitimate prop passing patterns
+
 ## Philosophy
 
 This tool promotes:

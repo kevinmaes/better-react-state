@@ -57,6 +57,12 @@ export const detectPropDrillingRule: Rule = {
       const firstDriller = components.find((c) => !c.isUsedInComponent && c.isPassedToChild);
 
       if (firstDriller) {
+        const analysis = analyzePropDrilling(propName, components);
+
+        if (!analysis.shouldReport) {
+          continue; // Skip legitimate UI props
+        }
+
         const chainDescription = components.map((c) => c.componentName).join(' → ');
 
         // Use graduated severity: warning for 2 levels, error for 3+ levels
@@ -75,6 +81,7 @@ export const detectPropDrillingRule: Rule = {
               ? `Critical: Use React Context or component composition to eliminate this deep prop drilling for "${propName}"`
               : `Consider using React Context for "${propName}" or use component composition to avoid prop drilling`,
           fixable: false,
+          confidence: analysis.confidence,
         });
       }
     }
@@ -292,6 +299,150 @@ function analyzePropUsage(
     isPassedToChild,
     path: componentPath,
     location,
+  };
+}
+
+interface PropDrillingAnalysis {
+  shouldReport: boolean;
+  confidence: 'high' | 'medium' | 'low';
+  reason: string;
+}
+
+function analyzePropDrilling(propName: string, components: PropUsage[]): PropDrillingAnalysis {
+  const propNameLower = propName.toLowerCase();
+
+  // Legitimate UI concern props that are often passed down
+  const uiConcernProps = [
+    'disabled',
+    'loading',
+    'error',
+    'readonly',
+    'required',
+    'visible',
+    'hidden',
+    'open',
+    'closed',
+    'active',
+    'selected',
+    'checked',
+    'expanded',
+    'collapsed',
+    'focused',
+    'hover',
+    'dragging',
+    'resizing',
+  ];
+
+  // Style and presentation props that are legitimate to pass
+  const presentationProps = [
+    'classname',
+    'style',
+    'variant',
+    'size',
+    'color',
+    'theme',
+    'mode',
+    'direction',
+    'orientation',
+    'position',
+    'align',
+    'justify',
+    'spacing',
+    'padding',
+    'margin',
+  ];
+
+  // Accessibility props that should be passed
+  const a11yProps = [
+    'role',
+    'aria',
+    'tabindex',
+    'title',
+    'alt',
+    'label',
+    'description',
+    'placeholder',
+  ];
+
+  // Event handler props are often legitimately passed
+  const eventProps = ['on', 'handle'];
+
+  // Check if it's a legitimate UI concern
+  if (uiConcernProps.some((p) => propNameLower === p || propNameLower.startsWith(p))) {
+    // Only report if it's drilled through 3+ levels
+    if (components.length < 3) {
+      return {
+        shouldReport: false,
+        confidence: 'low',
+        reason: 'Legitimate UI concern prop',
+      };
+    }
+    // For 3+ levels, report with lower confidence
+    return {
+      shouldReport: true,
+      confidence: 'low',
+      reason: 'UI concern prop drilled deeply',
+    };
+  }
+
+  // Check presentation props
+  if (presentationProps.some((p) => propNameLower === p || propNameLower.includes(p))) {
+    // Presentation props are often legitimate for component composition
+    if (components.length < 3) {
+      return {
+        shouldReport: false,
+        confidence: 'low',
+        reason: 'Presentation prop for component composition',
+      };
+    }
+    return {
+      shouldReport: true,
+      confidence: 'medium',
+      reason: 'Presentation prop drilled through multiple levels',
+    };
+  }
+
+  // Check accessibility props
+  if (a11yProps.some((p) => propNameLower === p || propNameLower.includes(p))) {
+    return {
+      shouldReport: false,
+      confidence: 'low',
+      reason: 'Accessibility prop should be passed through',
+    };
+  }
+
+  // Check event handlers
+  if (eventProps.some((p) => propNameLower.startsWith(p))) {
+    // Event handlers are often passed through wrapper components
+    if (components.length <= 2) {
+      return {
+        shouldReport: false,
+        confidence: 'low',
+        reason: 'Event handler delegation is common pattern',
+      };
+    }
+    return {
+      shouldReport: true,
+      confidence: 'medium',
+      reason: 'Event handler drilled through many levels',
+    };
+  }
+
+  // Data props are usually the real prop drilling issues
+  const dataPatterns = ['data', 'items', 'list', 'user', 'config', 'settings', 'options'];
+  if (dataPatterns.some((p) => propNameLower.includes(p))) {
+    return {
+      shouldReport: true,
+      confidence: 'high',
+      reason: 'Data prop drilling detected',
+    };
+  }
+
+  // Default: report with medium confidence
+  return {
+    shouldReport: true,
+    confidence: components.length >= 3 ? 'high' : 'medium',
+    reason: 'Prop passed through multiple components without use',
   };
 }
 

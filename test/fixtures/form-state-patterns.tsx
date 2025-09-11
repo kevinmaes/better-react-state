@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from 'react';
 
 // ❌ Bad: Complex registration form with many individual useState calls (should trigger warning)

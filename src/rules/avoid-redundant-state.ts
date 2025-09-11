@@ -42,7 +42,8 @@ function checkComponent(path: NodePath, filename: string, issues: Issue[]): void
 
   // Look for patterns that suggest computed state
   for (const state of stateCalls) {
-    if (isLikelyComputedState(state, stateCalls)) {
+    const analysis = analyzeRedundantState(state, stateCalls, path);
+    if (analysis.isRedundant) {
       const location = getNodeLocation(state.node);
 
       issues.push({
@@ -52,8 +53,9 @@ function checkComponent(path: NodePath, filename: string, issues: Issue[]): void
         file: filename,
         line: location.line,
         column: location.column,
-        suggestion: `Consider computing this value during render instead of storing in state`,
+        suggestion: `Consider computing this value during render instead of storing in state. ${analysis.reason}`,
         fixable: true,
+        confidence: analysis.confidence,
       });
     }
   }
@@ -62,11 +64,25 @@ function checkComponent(path: NodePath, filename: string, issues: Issue[]): void
   checkForComputedUpdates(path, stateCalls, filename, issues);
 }
 
-function isLikelyComputedState(
+type StatePurpose = 'ui' | 'data' | 'config' | 'computed' | 'tracking' | 'unknown';
+
+interface RedundantStateAnalysis {
+  isRedundant: boolean;
+  confidence: 'high' | 'medium' | 'low';
+  purpose: StatePurpose;
+  reason: string;
+}
+
+function analyzeRedundantState(
   state: ReturnType<typeof findUseStateCalls>[0],
-  allStates: ReturnType<typeof findUseStateCalls>
-): boolean {
+  allStates: ReturnType<typeof findUseStateCalls>,
+  componentPath: NodePath
+): RedundantStateAnalysis {
   const name = state.name.toLowerCase();
+  const purpose = classifyStatePurpose(state, componentPath);
+  let confidenceScore = 0;
+  let isRedundant = false;
+  let reason = '';
 
   // Common computed state patterns
   const computedPatterns = [
@@ -109,7 +125,10 @@ function isLikelyComputedState(
       // Look for array states if this is a count/length
       if (['count', 'length', 'size', 'total'].some((p) => name.includes(p))) {
         return (
-          t.isArrayExpression(s.initialValue) || name.includes('items') || name.includes('list')
+          t.isArrayExpression(s.initialValue) ||
+          s.name.toLowerCase().includes('items') ||
+          s.name.toLowerCase().includes('list') ||
+          s.name.toLowerCase().includes('data')
         );
       }
 
@@ -118,13 +137,174 @@ function isLikelyComputedState(
         return isBooleanState(s);
       }
 
-      return true;
+      return false;
     });
 
-    return potentialSources.length > 0;
+    if (potentialSources.length > 0) {
+      // Check if this state is updated independently from its potential sources
+      const isIndependent = checkStateIndependence(state, potentialSources, componentPath);
+
+      if (!isIndependent) {
+        isRedundant = true;
+        confidenceScore = 60;
+        reason = `Can be derived from: ${potentialSources.map((s) => s.name).join(', ')}`;
+
+        // Higher confidence for obvious patterns
+        if (
+          name.includes('count') &&
+          potentialSources.some((s) => s.name.toLowerCase().includes('items'))
+        ) {
+          confidenceScore = 80;
+        }
+        if (
+          name.includes('total') &&
+          potentialSources.some((s) => s.name.toLowerCase().includes('price'))
+        ) {
+          confidenceScore = 75;
+        }
+      } else {
+        // State seems to be managed independently, likely not redundant
+        reason = 'State is managed independently from potential sources';
+        confidenceScore = 20;
+      }
+    }
   }
 
-  return false;
+  // Special case: UI state (selectedId vs data) is often NOT redundant
+  if (purpose === 'ui' && name.includes('selected')) {
+    // selectedTransformerId is different from activeTransformerIds
+    const hasRelatedDataState = allStates.some(
+      (s) =>
+        s.name.toLowerCase().includes('active') ||
+        s.name.toLowerCase().includes('data') ||
+        s.name.toLowerCase().includes('items')
+    );
+
+    if (hasRelatedDataState) {
+      // This is likely UI selection state, not redundant
+      isRedundant = false;
+      confidenceScore = 0;
+      reason = 'UI selection state serves different purpose from data state';
+    }
+  }
+
+  // Determine confidence level
+  let confidence: 'high' | 'medium' | 'low';
+  if (confidenceScore >= 70) {
+    confidence = 'high';
+  } else if (confidenceScore >= 40) {
+    confidence = 'medium';
+  } else {
+    confidence = 'low';
+  }
+
+  return {
+    isRedundant,
+    confidence,
+    purpose,
+    reason,
+  };
+}
+
+function classifyStatePurpose(
+  state: ReturnType<typeof findUseStateCalls>[0],
+  _componentPath: NodePath
+): StatePurpose {
+  const name = state.name.toLowerCase();
+
+  // UI state patterns
+  const uiPatterns = [
+    'selected',
+    'hovered',
+    'focused',
+    'expanded',
+    'collapsed',
+    'modal',
+    'drawer',
+    'tab',
+    'step',
+  ];
+  if (uiPatterns.some((p) => name.includes(p))) {
+    return 'ui';
+  }
+
+  // Data state patterns
+  const dataPatterns = ['data', 'items', 'list', 'records', 'entities', 'results', 'response'];
+  if (dataPatterns.some((p) => name.includes(p))) {
+    return 'data';
+  }
+
+  // Config state patterns
+  const configPatterns = ['config', 'settings', 'options', 'preferences', 'theme', 'mode'];
+  if (configPatterns.some((p) => name.includes(p))) {
+    return 'config';
+  }
+
+  // Computed patterns
+  const computedPatterns = ['total', 'sum', 'count', 'length', 'formatted', 'display'];
+  if (computedPatterns.some((p) => name.includes(p))) {
+    return 'computed';
+  }
+
+  // Tracking patterns
+  const trackingPatterns = ['loading', 'error', 'status', 'progress', 'pending'];
+  if (trackingPatterns.some((p) => name.includes(p))) {
+    return 'tracking';
+  }
+
+  return 'unknown';
+}
+
+function checkStateIndependence(
+  state: ReturnType<typeof findUseStateCalls>[0],
+  potentialSources: ReturnType<typeof findUseStateCalls>,
+  componentPath: NodePath
+): boolean {
+  // Check if the state setter is called independently from potential source setters
+  let independentUpdates = 0;
+  let coupledUpdates = 0;
+
+  const sourceSetters = potentialSources.map((s) => s.setterName);
+
+  componentPath.traverse({
+    CallExpression(path) {
+      const { node } = path;
+
+      if (t.isIdentifier(node.callee) && node.callee.name === state.setterName) {
+        // Check if any source setters are called in the same function
+        const functionParent = path.getFunctionParent();
+        if (!functionParent) return;
+
+        let hasSourceSetterCall = false;
+        functionParent.traverse({
+          CallExpression(innerPath) {
+            if (innerPath === path) return;
+            const innerNode = innerPath.node;
+            if (t.isIdentifier(innerNode.callee) && sourceSetters.includes(innerNode.callee.name)) {
+              hasSourceSetterCall = true;
+            }
+          },
+        });
+
+        if (hasSourceSetterCall) {
+          coupledUpdates++;
+        } else {
+          independentUpdates++;
+        }
+      }
+    },
+  });
+
+  // If state is mostly updated independently, it's likely not redundant
+  return independentUpdates > coupledUpdates;
+}
+
+function _isLikelyComputedState(
+  state: ReturnType<typeof findUseStateCalls>[0],
+  allStates: ReturnType<typeof findUseStateCalls>
+): boolean {
+  const analysis = analyzeRedundantState(state, allStates, {} as NodePath);
+  return analysis.isRedundant;
 }
 
 function checkForComputedUpdates(

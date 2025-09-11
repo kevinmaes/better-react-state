@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useReducer } from 'react';
 
 // Example 1: Multiple states updated together
